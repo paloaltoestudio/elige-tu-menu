@@ -1,6 +1,15 @@
+import { useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuthStore } from '../stores/authStore';
 import { LoginForm } from '../components/auth/LoginForm';
 
 export const LoginPage = () => {
+  const { isAuthenticated } = useAuthStore();
+
+  // If user is already authenticated, redirect to dashboard
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Top Header with University Logo and Menu Banner */}

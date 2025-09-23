@@ -1,11 +1,14 @@
 export interface AuthResponse {
   mensaje: string;
   token: string;
+  documento?: string;
 }
 
 export interface User {
   sub: string;
   rol: string;
+  usuario?: string; // Add username field
+  documento?: string; // Add document field
   iat: number;
   exp: number;
 }

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 
 interface ProtectedRouteProps {
@@ -13,7 +14,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }, [initializeAuth]);
 
   if (!isAuthenticated) {
-    return null; // Will redirect to login via main App component
+    return <Navigate to="/login" replace />;
   }
 
   return <>{children}</>;

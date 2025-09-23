@@ -1,26 +1,66 @@
 import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
+import { useTokenValidation } from './hooks/useTokenValidation';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { MisSolicitudesPage } from './pages/MisSolicitudesPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 function App() {
-  const { isAuthenticated, initializeAuth } = useAuthStore();
-
+  const { isAuthenticated, loading, initializeAuth } = useAuthStore();
+  
+  // Initialize authentication and start token validation
   useEffect(() => {
     initializeAuth();
   }, [initializeAuth]);
 
+  // Start token validation for authenticated users
+  useTokenValidation();
+
+  // Show loading while authentication is being initialized
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="App">
-      {isAuthenticated ? (
-        <ProtectedRoute>
-          <DashboardPage />
-        </ProtectedRoute>
-      ) : (
-        <LoginPage />
-      )}
-    </div>
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route 
+            path="/login" 
+            element={<LoginPage />} 
+          />
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/mis-solicitudes" 
+            element={
+              <ProtectedRoute>
+                <MisSolicitudesPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/" 
+            element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />} 
+          />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

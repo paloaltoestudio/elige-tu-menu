@@ -1,5 +1,6 @@
 import { Header } from '../components/layout/Header';
 import { Footer } from '../components/layout/Footer';
+import { Link } from 'react-router-dom';
 
 export const DashboardPage = () => {
   return (
@@ -22,14 +23,16 @@ export const DashboardPage = () => {
               </p>
             </div>
             
-            <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-green-900 mb-2">
-                Historial
-              </h3>
-              <p className="text-green-700 text-sm">
-                Revisa tus selecciones anteriores
-              </p>
-            </div>
+            <Link to="/mis-solicitudes" className="block">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-6 hover:bg-green-100 transition-colors cursor-pointer">
+                <h3 className="text-lg font-semibold text-green-900 mb-2">
+                  Mis Solicitudes
+                </h3>
+                <p className="text-green-700 text-sm">
+                  Revisa tus solicitudes anteriores
+                </p>
+              </div>
+            </Link>
             
             <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-purple-900 mb-2">

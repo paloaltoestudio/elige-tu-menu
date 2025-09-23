@@ -1,8 +1,15 @@
 import { useAuthStore } from '../../stores/authStore';
 import { Button } from '../ui/Button';
+import { useNavigate } from 'react-router-dom';
 
 export const Header = () => {
   const { user, logout } = useAuthStore();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <header className="bg-white shadow-sm border-b">
@@ -46,13 +53,16 @@ export const Header = () => {
             {user && (
               <div className="text-right">
                 <p className="text-sm font-medium text-gray-900">
+                  {user.usuario || user.sub}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {user.documento && `Doc: ${user.documento} • `}
                   {user.rol === 'ESTUDIANTE' ? 'Estudiante' : 'Docente'}
                 </p>
-                <p className="text-xs text-gray-500">ID: {user.sub}</p>
               </div>
             )}
             <Button
-              onClick={logout}
+              onClick={handleLogout}
               variant="outline"
               size="sm"
             >

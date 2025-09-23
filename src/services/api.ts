@@ -29,9 +29,13 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid
+      // Token expired or invalid - clear session and redirect
+      console.warn('API returned 401, token may be expired');
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      
+      // Use window.location.href for reliable redirect
+      // This ensures the user is redirected even if the app state is corrupted
       window.location.href = '/login';
     }
     return Promise.reject(error);

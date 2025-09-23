@@ -7,13 +7,14 @@ interface AuthStore extends AuthState {
   logout: () => void;
   initializeAuth: () => void;
   clearError: () => void;
+  checkTokenExpiration: () => void;
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
   isAuthenticated: false,
   user: null,
   token: null,
-  loading: false,
+  loading: true, // Start with loading true to prevent premature route evaluation
   error: null,
 
   login: async (credentials: LoginCredentials) => {
@@ -30,12 +31,19 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         throw new Error('Rol de usuario no autorizado');
       }
       
-      // Set session
-      AuthService.setSession(response.token);
+      // Set session with username and documento
+      AuthService.setSession(response.token, credentials.usuario, response.documento);
+      
+      // Update user object with username and documento
+      const userWithData = { 
+        ...user, 
+        usuario: credentials.usuario,
+        documento: response.documento 
+      };
       
       set({
         isAuthenticated: true,
-        user,
+        user: userWithData,
         token: response.token,
         loading: false,
         error: null,
@@ -64,6 +72,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   },
 
   initializeAuth: () => {
+    set({ loading: true }); // Set loading to true at start
+    
     const token = AuthService.getStoredToken();
     const user = AuthService.getStoredUser();
     
@@ -90,5 +100,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   clearError: () => {
     set({ error: null });
+  },
+
+  checkTokenExpiration: () => {
+    const { token, isAuthenticated } = get();
+    
+    if (isAuthenticated && token && AuthService.isTokenExpired(token)) {
+      console.warn('Token expired during app usage, logging out');
+      get().logout();
+    }
   },
 }));

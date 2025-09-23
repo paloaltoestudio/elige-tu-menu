@@ -42,8 +42,15 @@ export class AuthService {
   static isTokenExpired(token: string): boolean {
     try {
       const decoded = this.decodeToken(token);
-      const currentTime = Date.now() / 1000;
-      return decoded.exp < currentTime;
+      const currentTimeMs = Date.now(); // Current time in milliseconds
+      
+      console.log('Decoded token:', decoded);
+      console.log('Current time (ms):', currentTimeMs);
+      console.log('Token expiration:', decoded.exp);
+      
+      console.log('Token expired:', decoded.exp < currentTimeMs);
+      
+      return decoded.exp < currentTimeMs;
     } catch (error) {
       return true;
     }
@@ -54,9 +61,16 @@ export class AuthService {
     return validRoles.includes(role.toUpperCase());
   }
 
-  static setSession(token: string): void {
+  static setSession(token: string, username?: string, documento?: string): void {
     localStorage.setItem('token', token);
     const user = this.decodeToken(token);
+    // Add username and documento to user object if provided
+    if (username) {
+      user.usuario = username;
+    }
+    if (documento) {
+      user.documento = documento;
+    }
     localStorage.setItem('user', JSON.stringify(user));
   }
 
