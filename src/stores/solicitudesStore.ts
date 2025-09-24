@@ -11,7 +11,14 @@ interface SolicitudesState {
   totalPages: number;
   loading: boolean;
   error: string | null;
-  fetchSolicitudes: (page?: number, itemsPerPage?: number) => Promise<void>;
+  filters: {
+    menu: string;
+    fechaDesde: string;
+    fechaHasta: string;
+    estado: string;
+  };
+  fetchSolicitudes: (page?: number, itemsPerPage?: number, filters?: SolicitudesState['filters']) => Promise<void>;
+  updateFilters: (filters: Partial<SolicitudesState['filters']>) => void;
   clearError: () => void;
 }
 
@@ -22,8 +29,14 @@ export const useSolicitudesStore = create<SolicitudesState>((set, get) => ({
   totalPages: 0,
   loading: false,
   error: null,
+  filters: {
+    menu: '',
+    fechaDesde: '',
+    fechaHasta: '',
+    estado: '',
+  },
 
-  fetchSolicitudes: async (page = 1, itemsPerPage = 10) => {
+  fetchSolicitudes: async (page = 1, itemsPerPage = 10, filters = get().filters) => {
     set({ loading: true, error: null });
     
     try {
@@ -41,27 +54,50 @@ export const useSolicitudesStore = create<SolicitudesState>((set, get) => ({
         throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
       }
 
-      // Create date range (last 6 months by default)
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setMonth(startDate.getMonth() - 6);
+      // Use filters for date range or default to last 6 months
+      let fechaInicial, fechaFinal;
+      
+      if (filters.fechaDesde && filters.fechaHasta) {
+        fechaInicial = filters.fechaDesde;
+        fechaFinal = filters.fechaHasta;
+      } else {
+        // Default to last 6 months if no date filters
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setMonth(startDate.getMonth() - 6);
+        fechaInicial = startDate.toISOString().split('T')[0];
+        fechaFinal = endDate.toISOString().split('T')[0];
+      }
 
       const request: SolicitudesRequest = {
         tk: authStore.token,
         numero_documento: authStore.user.documento || authStore.user.sub,
-        fecha_inicial: startDate.toISOString().split('T')[0], // YYYY-MM-DD format
-        fecha_final: endDate.toISOString().split('T')[0], // YYYY-MM-DD format
+        fecha_inicial: fechaInicial,
+        fecha_final: fechaFinal,
         paginacion: itemsPerPage,
-        pagina: page > 1 ? page.toString() : undefined,
+        pagina: page > 1 ? page.toString() : '1',
+        ...(filters.menu && { menu: filters.menu }),
+        ...(filters.estado && { estado: filters.estado }),
       };
 
       const response = await SolicitudesService.getSolicitudes(request);
       
+      // Convert object to array if needed
+      let pedidosArray = [];
+      if (response.pedidos) {
+        if (Array.isArray(response.pedidos)) {
+          pedidosArray = response.pedidos;
+        } else {
+          // If it's an object, convert to array
+          pedidosArray = Object.values(response.pedidos);
+        }
+      }
+      
       set({
-        solicitudes: response.solicitudes || [],
-        total: response.total || 0,
-        currentPage: page,
-        totalPages: response.totalPages || 0,
+        solicitudes: pedidosArray,
+        total: response.paginacion?.total_registros || 0,
+        currentPage: response.paginacion?.pagina_actual || page,
+        totalPages: response.paginacion?.total_paginas || 0,
         loading: false,
         error: null,
       });
@@ -75,6 +111,12 @@ export const useSolicitudesStore = create<SolicitudesState>((set, get) => ({
         error: error.message || 'Error al obtener solicitudes',
       });
     }
+  },
+
+  updateFilters: (newFilters) => {
+    const currentFilters = get().filters;
+    const updatedFilters = { ...currentFilters, ...newFilters };
+    set({ filters: updatedFilters });
   },
 
   clearError: () => {

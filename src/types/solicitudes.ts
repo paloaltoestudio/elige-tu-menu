@@ -1,16 +1,23 @@
 export interface Solicitud {
-  id: string;
   menu: string;
-  fechaPedido: string;
-  estadoPedido: 'SOLICITADO' | 'CONFIRMADO' | 'PREPARANDO' | 'ENTREGADO' | 'CANCELADO';
+  restaurante: string;
+  tipo_servicio: string;
+  fecha_pedido: string;
+  estado: 'SOLICITADO' | 'CONFIRMADO' | 'PREPARANDO' | 'ENTREGADO' | 'CANCELADO';
 }
 
 export interface SolicitudesResponse {
-  solicitudes: Solicitud[];
-  total: number;
-  page: number;
-  totalPages: number;
-  mensaje?: string;
+  codigo: string;
+  mensaje: string;
+  pedidos: Solicitud[];
+  paginacion: {
+    pagina_actual: number;
+    registros_por_pagina: number;
+    tiene_anterior: boolean;
+    tiene_siguiente: boolean;
+    total_paginas: number;
+    total_registros: number;
+  };
 }
 
 export interface SolicitudesRequest {
@@ -20,4 +27,6 @@ export interface SolicitudesRequest {
   fecha_final: string;
   paginacion: number;
   pagina?: string;
+  menu?: string;
+  estado?: string;
 }

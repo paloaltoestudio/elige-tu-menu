@@ -77,25 +77,38 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     const token = AuthService.getStoredToken();
     const user = AuthService.getStoredUser();
     
-    if (token && user && !AuthService.isTokenExpired(token)) {
-      set({
-        isAuthenticated: true,
-        user,
-        token,
-        loading: false,
-        error: null,
-      });
-    } else {
-      // Clear invalid session
-      AuthService.clearSession();
-      set({
-        isAuthenticated: false,
-        user: null,
-        token: null,
-        loading: false,
-        error: null,
-      });
+    console.log('initializeAuth - token:', token);
+    console.log('initializeAuth - user:', user);
+    console.log('localStorage token:', localStorage.getItem('token'));
+    console.log('localStorage user:', localStorage.getItem('user'));
+    
+    if (token && user) {
+      const isExpired = AuthService.isTokenExpired(token);
+      console.log('initializeAuth - token expired:', isExpired);
+      
+      if (!isExpired) {
+        console.log('initializeAuth - setting authenticated');
+        set({
+          isAuthenticated: true,
+          user,
+          token,
+          loading: false,
+          error: null,
+        });
+        return;
+      }
     }
+    
+    console.log('initializeAuth - clearing session');
+    // Clear invalid session
+    AuthService.clearSession();
+    set({
+      isAuthenticated: false,
+      user: null,
+      token: null,
+      loading: false,
+      error: null,
+    });
   },
 
   clearError: () => {

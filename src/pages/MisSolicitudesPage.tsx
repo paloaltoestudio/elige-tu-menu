@@ -22,7 +22,9 @@ export const MisSolicitudesPage = () => {
     totalPages,
     loading,
     error,
+    filters: storeFilters,
     fetchSolicitudes,
+    updateFilters,
     clearError,
   } = useSolicitudesStore();
 
@@ -30,62 +32,37 @@ export const MisSolicitudesPage = () => {
 
   // Fetch solicitudes on component mount
   useEffect(() => {
-    fetchSolicitudes(1, itemsPerPage);
-  }, [fetchSolicitudes, itemsPerPage]);
+    fetchSolicitudes(1, itemsPerPage, storeFilters);
+  }, [fetchSolicitudes, itemsPerPage, storeFilters]);
 
-  // For now, we'll use client-side filtering since the API doesn't support filters yet
-  // In the future, these filters should be sent to the API
-  const filteredSolicitudes = solicitudes.filter(solicitud => {
-    // Menu filter
-    if (filters.menu && solicitud.menu !== filters.menu) return false;
-    
-    // Date range filter (convert DD-MM-YYYY to YYYY-MM-DD for comparison)
-    if (filters.fechaDesde) {
-      const [day, month, year] = solicitud.fechaPedido.split('-');
-      const solicitudDate = `${year}-${month}-${day}`;
-      if (solicitudDate < filters.fechaDesde) return false;
-    }
-    if (filters.fechaHasta) {
-      const [day, month, year] = solicitud.fechaPedido.split('-');
-      const solicitudDate = `${year}-${month}-${day}`;
-      if (solicitudDate > filters.fechaHasta) return false;
-    }
-    
-    // Status filter
-    if (filters.estado && solicitud.estadoPedido !== filters.estado) return false;
-    
-    return true;
-  });
-
-  // Use client-side pagination for filtered results
-  const filteredTotalPages = Math.ceil(filteredSolicitudes.length / itemsPerPage);
-  const paginatedSolicitudes = filteredSolicitudes.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  // Server-side filtering and pagination - no client-side processing needed
+  console.log('Solicitudes:', solicitudes);
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    fetchSolicitudes(page, itemsPerPage, storeFilters);
   };
 
   const handleFilterChange = (newFilters: typeof filters) => {
     setFilters(newFilters);
-    setCurrentPage(1); // Reset to first page when filters change
+    updateFilters(newFilters);
   };
 
   const handleSearch = () => {
-    // Filter logic is handled in the filteredSolicitudes calculation
-    setCurrentPage(1);
+    // Apply filters and fetch new data
+    updateFilters(filters);
+    fetchSolicitudes(1, itemsPerPage, filters);
   };
 
   const handleReset = () => {
-    setFilters({
+    const resetFilters = {
       menu: '',
       fechaDesde: '',
       fechaHasta: '',
       estado: '',
-    });
-    setCurrentPage(1);
+    };
+    setFilters(resetFilters);
+    updateFilters(resetFilters);
+    fetchSolicitudes(1, itemsPerPage, resetFilters);
     clearError();
   };
 
@@ -163,6 +140,12 @@ export const MisSolicitudesPage = () => {
                           Menú
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Restaurante
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Tipo de Servicio
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Fecha del pedido
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -171,26 +154,32 @@ export const MisSolicitudesPage = () => {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {paginatedSolicitudes.length > 0 ? (
-                        paginatedSolicitudes.map((solicitud, index) => (
-                          <tr key={solicitud.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                      {solicitudes.length > 0 ? (
+                        solicitudes.map((solicitud, index) => (
+                          <tr key={`${solicitud.menu}-${solicitud.fecha_pedido}-${index}`} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                               {solicitud.menu}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {solicitud.fechaPedido}
+                              {solicitud.restaurante}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {solicitud.tipo_servicio}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {solicitud.fecha_pedido}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                               <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                {solicitud.estadoPedido}
+                                {solicitud.estado}
                               </span>
                             </td>
                           </tr>
                         ))
                       ) : (
                         <tr>
-                          <td colSpan={3} className="px-6 py-8 text-center text-gray-500">
-                            {filters.menu || filters.fechaDesde || filters.fechaHasta || filters.estado
+                          <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                            {storeFilters.menu || storeFilters.fechaDesde || storeFilters.fechaHasta || storeFilters.estado
                               ? 'No se encontraron solicitudes que coincidan con los filtros aplicados.'
                               : 'No tienes solicitudes registradas.'}
                           </td>
@@ -201,11 +190,11 @@ export const MisSolicitudesPage = () => {
                 </div>
 
                 {/* Pagination */}
-                {filteredTotalPages > 1 && (
+                {totalPages > 1 && (
                   <div className="px-6 py-4 border-t border-gray-200">
                     <Pagination
                       currentPage={currentPage}
-                      totalPages={filteredTotalPages}
+                      totalPages={totalPages}
                       onPageChange={handlePageChange}
                     />
                   </div>

@@ -48,10 +48,14 @@ export class AuthService {
       console.log('Current time (ms):', currentTimeMs);
       console.log('Token expiration:', decoded.exp);
       
-      console.log('Token expired:', decoded.exp < currentTimeMs);
       
-      return decoded.exp < currentTimeMs;
+      const isExpired = decoded.exp < currentTimeMs;
+      console.log('Token expired:', isExpired);
+      console.log('Time difference (ms):', currentTimeMs - decoded.exp);
+      
+      return isExpired;
     } catch (error) {
+      console.error('Error validating token:', error);
       return true;
     }
   }
@@ -75,6 +79,7 @@ export class AuthService {
   }
 
   static clearSession(): void {
+    console.log('clearSession called - removing token and user from localStorage');
     localStorage.removeItem('token');
     localStorage.removeItem('user');
   }

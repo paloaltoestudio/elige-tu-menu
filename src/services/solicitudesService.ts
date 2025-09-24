@@ -11,17 +11,28 @@ export class SolicitudesService {
       formData.append('fecha_inicial', request.fecha_inicial);
       formData.append('fecha_final', request.fecha_final);
       formData.append('paginacion', request.paginacion.toString());
-      if (request.pagina) {
-        formData.append('pagina', request.pagina);
+      formData.append('pagina', request.pagina || '1');
+      
+      // Add optional filters if provided
+      if (request.menu) {
+        formData.append('menu', request.menu);
+      }
+      if (request.estado) {
+        formData.append('estado', request.estado);
       }
 
       console.log('Fetching solicitudes with request:', request);
+      console.log('Form data (URLSearchParams):', formData.toString());
       console.log('Request URL:', apiClient.defaults.baseURL + '/api/ws_eligetumenu/listar_pedidos_usuario');
 
       const response = await apiClient.post('/api/ws_eligetumenu/listar_pedidos_usuario', formData, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
+        transformRequest: [(data) => {
+          console.log('Request being sent to API:', data);
+          return data;
+        }],
       });
       
       console.log('Solicitudes response:', response.data);

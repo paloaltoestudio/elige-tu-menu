@@ -18,9 +18,8 @@ interface FilterFormProps {
 export const FilterForm = ({ filters, onFilterChange, onSearch, onReset }: FilterFormProps) => {
   const menuOptions = [
     { value: '', label: '-- Seleccione Menú --' },
-    { value: 'NINGUNO', label: 'NINGUNO' },
-    { value: 'MENU PRUEBA QA DANI', label: 'MENU PRUEBA QA DANI' },
     { value: 'MENU PRUEBA 01', label: 'MENU PRUEBA 01' },
+    { value: 'MENU PRUEBA QA DANI', label: 'MENU PRUEBA QA DANI' },
   ];
 
   const estadoOptions = [
