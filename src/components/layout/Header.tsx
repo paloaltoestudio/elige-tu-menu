@@ -15,7 +15,7 @@ export const Header = () => {
     <header className="bg-white shadow-sm">
         {/* Menu Banner */}
         <div className="md:flex items-center justify-center">
-          <img src="/src/assets/banner-udea.jpg" alt="Banner UdeA" className="w-full" />
+          <img src="/banner-udea.jpg" alt="Banner UdeA" className="w-full" />
         </div>
 
         <div className="bg-blue-50 px-6 py-3">
