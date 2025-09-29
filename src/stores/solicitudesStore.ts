@@ -83,7 +83,7 @@ export const useSolicitudesStore = create<SolicitudesState>((set, get) => ({
       const response = await SolicitudesService.getSolicitudes(request);
       
       // Convert object to array if needed
-      let pedidosArray = [];
+      let pedidosArray: Solicitud[] = [];
       if (response.pedidos) {
         if (Array.isArray(response.pedidos)) {
           pedidosArray = response.pedidos;

@@ -17,7 +17,6 @@ export const MisSolicitudesPage = () => {
 
   const {
     solicitudes,
-    total,
     currentPage,
     totalPages,
     loading,
