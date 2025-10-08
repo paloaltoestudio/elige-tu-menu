@@ -14,14 +14,16 @@ export const DashboardPage = () => {
           </h1>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-blue-900 mb-2">
-                Seleccionar Menú
-              </h3>
-              <p className="text-blue-700 text-sm">
-                Elige tu menú para la semana actual
-              </p>
-            </div>
+            <Link to="/solicitar-servicio" className="block">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 hover:bg-blue-100 transition-colors cursor-pointer">
+                <h3 className="text-lg font-semibold text-blue-900 mb-2">
+                  Solicitar Servicio
+                </h3>
+                <p className="text-blue-700 text-sm">
+                  Elige tu menú para la semana actual
+                </p>
+              </div>
+            </Link>
             
             <Link to="/mis-solicitudes" className="block">
               <div className="bg-green-50 border border-green-200 rounded-lg p-6 hover:bg-green-100 transition-colors cursor-pointer">

@@ -5,6 +5,7 @@ import { useTokenValidation } from './hooks/useTokenValidation';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { MisSolicitudesPage } from './pages/MisSolicitudesPage';
+import { SolicitarServicioPage } from './pages/SolicitarServicioPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 function App() {
@@ -51,6 +52,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <MisSolicitudesPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/solicitar-servicio" 
+            element={
+              <ProtectedRoute>
+                <SolicitarServicioPage />
               </ProtectedRoute>
             } 
           />
