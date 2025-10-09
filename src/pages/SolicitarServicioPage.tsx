@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../components/layout/Header';
+import { Sidebar } from '../components/layout/Sidebar';
 import { Footer } from '../components/layout/Footer';
 import { Button } from '../components/ui/Button';
 import { useAuthStore } from '../stores/authStore';
@@ -163,7 +164,10 @@ export const SolicitarServicioPage = () => {
     <div className="min-h-screen bg-gray-50">
       <Header />
       
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex">
+        <Sidebar />
+        
+        <main className="flex-1 p-8">
         <div className="bg-white rounded-lg shadow p-6">
           {/* Header */}
           <div className="mb-8">
@@ -552,7 +556,8 @@ export const SolicitarServicioPage = () => {
             </div>
           </div>
         </div>
-      </main>
+        </main>
+      </div>
       
       <Footer />
     </div>
