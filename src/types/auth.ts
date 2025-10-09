@@ -18,12 +18,26 @@ export interface AuthState {
   user: User | null;
   token: string | null;
   loading: boolean;
+  initializing: boolean;
   error: string | null;
 }
 
 export interface LoginCredentials {
   usuario: string;
   password: string;
+}
+
+export interface ChangePasswordRequest {
+  tk: string;
+  numero_documento: string;
+  clave_actual: string;
+  nueva_clave: string;
+  confirmar_clave: string;
+}
+
+export interface ChangePasswordResponse {
+  codigo: string;
+  mensaje: string;
 }
 
 export type UserRole = 'ESTUDIANTE' | 'DOCENTE' | 'WEBUSER';

@@ -14,7 +14,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   isAuthenticated: false,
   user: null,
   token: null,
-  loading: true, // Start with loading true to prevent premature route evaluation
+  loading: false,
+  initializing: true, // Start with initializing true to prevent premature route evaluation
   error: null,
 
   login: async (credentials: LoginCredentials) => {
@@ -24,7 +25,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       const response = await AuthService.login(credentials);
       
       // Decode token to get user info
-      const user = AuthService.decodeToken(response.token);
+      let user;
+      try {
+        user = AuthService.decodeToken(response.token);
+      } catch (tokenError) {
+        // If token is invalid, treat it as incorrect credentials
+        throw new Error('Datos incorrectos');
+      }
       
       // Validate user role
       if (!AuthService.isValidRole(user.rol)) {
@@ -49,12 +56,22 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         error: null,
       });
     } catch (error: any) {
+      // Normalize error messages for better UX
+      let errorMessage = error.message || 'Error de autenticación';
+      
+      // Map common errors to user-friendly messages
+      if (errorMessage.toLowerCase().includes('token inválido') || 
+          errorMessage.toLowerCase().includes('invalid token') ||
+          errorMessage.toLowerCase().includes('credenciales')) {
+        errorMessage = 'Datos incorrectos';
+      }
+      
       set({
         isAuthenticated: false,
         user: null,
         token: null,
         loading: false,
-        error: error.message || 'Error de autenticación',
+        error: errorMessage,
       });
       throw error;
     }
@@ -72,7 +89,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   },
 
   initializeAuth: () => {
-    set({ loading: true }); // Set loading to true at start
+    set({ initializing: true }); // Set initializing to true at start
     
     const token = AuthService.getStoredToken();
     const user = AuthService.getStoredUser();
@@ -92,7 +109,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           isAuthenticated: true,
           user,
           token,
-          loading: false,
+          initializing: false,
           error: null,
         });
         return;
@@ -106,7 +123,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       isAuthenticated: false,
       user: null,
       token: null,
-      loading: false,
+      initializing: false,
       error: null,
     });
   },

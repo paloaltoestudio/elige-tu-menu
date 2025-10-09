@@ -75,21 +75,22 @@ export const MisSolicitudesPage = () => {
       <div className="flex">
         <Sidebar />
         
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-3 sm:p-4 lg:p-8 w-full lg:w-auto">
           <div className="bg-white rounded-lg shadow-sm">
             {/* Page Title */}
-            <div className="border-b border-gray-200 px-6 py-4">
-              <h1 className="text-2xl font-bold text-gray-900">Mis solicitudes</h1>
+            <div className="border-b border-gray-200 px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Mis solicitudes</h1>
             </div>
 
             {/* Search Button and Filters */}
-            <div className="px-6 py-4 border-b border-gray-200">
-              <div className="flex items-center space-x-3">
+            <div className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 border-b border-gray-200">
+              <div className="flex items-center">
                 <button
                   onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center space-x-2 px-4 py-2 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 transition-colors"
+                  className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 transition-colors text-sm sm:text-base"
                 >
-                  <span>Realizar búsqueda</span>
+                  <span className="hidden sm:inline">Realizar búsqueda</span>
+                  <span className="sm:hidden">Buscar</span>
                   <svg 
                     className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} 
                     fill="none" 
@@ -117,25 +118,58 @@ export const MisSolicitudesPage = () => {
 
             {/* Error Message */}
             {error && (
-              <div className="px-6 py-4 border-b border-gray-200">
+              <div className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 border-b border-gray-200">
                 <div className="bg-red-50 border border-red-200 rounded-md p-3">
-                  <p className="text-sm text-red-600">{error}</p>
+                  <p className="text-xs sm:text-sm text-red-600">{error}</p>
                 </div>
               </div>
             )}
 
             {/* Loading State */}
             {loading ? (
-              <div className="px-6 py-8">
+              <div className="px-3 sm:px-4 lg:px-6 py-6 sm:py-8">
                 <div className="flex justify-center items-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  <span className="ml-2 text-gray-600">Cargando solicitudes...</span>
+                  <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-600"></div>
+                  <span className="ml-2 text-sm sm:text-base text-gray-600">Cargando solicitudes...</span>
                 </div>
               </div>
             ) : (
               <>
-                {/* Table */}
-                <div className="overflow-x-auto">
+                {/* Mobile Card View */}
+                <div className="block lg:hidden">
+                  {solicitudes.length > 0 ? (
+                    <div className="divide-y divide-gray-200">
+                      {solicitudes.map((solicitud, index) => (
+                        <div key={`${solicitud.menu}-${solicitud.fecha_pedido}-${index}`} className="p-4 hover:bg-gray-50">
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <p className="text-sm font-semibold text-gray-900">{solicitud.menu}</p>
+                                <p className="text-xs text-gray-500 mt-1">{solicitud.restaurante}</p>
+                              </div>
+                              <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 whitespace-nowrap ml-2">
+                                {solicitud.estado}
+                              </span>
+                            </div>
+                            <div className="text-xs text-gray-600">
+                              <p><span className="font-medium">Tipo:</span> {solicitud.tipo_servicio}</p>
+                              <p className="mt-1"><span className="font-medium">Fecha:</span> {solicitud.fecha_pedido}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-6 text-center text-sm text-gray-500">
+                      {storeFilters.menu || storeFilters.fechaDesde || storeFilters.fechaHasta || storeFilters.estado
+                        ? 'No se encontraron solicitudes que coincidan con los filtros aplicados.'
+                        : 'No tienes solicitudes registradas.'}
+                    </div>
+                  )}
+                </div>
+
+                {/* Desktop Table View */}
+                <div className="hidden lg:block overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
@@ -194,7 +228,7 @@ export const MisSolicitudesPage = () => {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="px-6 py-4 border-t border-gray-200">
+                  <div className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 border-t border-gray-200">
                     <Pagination
                       currentPage={currentPage}
                       totalPages={totalPages}

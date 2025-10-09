@@ -38,17 +38,17 @@ export const FilterForm = ({
   ];
 
   return (
-    <div className="bg-gray-100 border border-gray-300 rounded-lg p-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Top Row */}
+    <div className="bg-gray-100 border border-gray-300 rounded-lg p-3 sm:p-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+        {/* Menú Filter */}
         <div className="space-y-2">
-          <label className="block text-sm font-bold text-gray-700">
+          <label className="block text-xs sm:text-sm font-bold text-gray-700">
             Menú:
           </label>
           <select
             value={filters.menu}
             onChange={(e) => onFilterChange({ ...filters, menu: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-2 sm:px-3 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             {menuOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -58,41 +58,46 @@ export const FilterForm = ({
           </select>
         </div>
 
+        {/* Date Range Filter */}
         <div className="space-y-2">
-          <label className="block text-sm font-bold text-gray-700">
+          <label className="block text-xs sm:text-sm font-bold text-gray-700">
             Fecha del pedido:
           </label>
-          <div className="flex items-center space-x-2">
-            <button className="px-3 py-2 bg-gray-300 text-gray-700 rounded text-sm font-medium">
-              De
-            </button>
-            <input
-              type="date"
-              value={filters.fechaDesde}
-              onChange={(e) => onFilterChange({ ...filters, fechaDesde: e.target.value })}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-            <button className="px-3 py-2 bg-gray-300 text-gray-700 rounded text-sm font-medium">
-              A
-            </button>
-            <input
-              type="date"
-              value={filters.fechaHasta}
-              onChange={(e) => onFilterChange({ ...filters, fechaHasta: e.target.value })}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <div className="flex items-center space-x-2 flex-1">
+              <span className="px-2 py-1.5 bg-gray-300 text-gray-700 rounded text-xs font-medium whitespace-nowrap">
+                De
+              </span>
+              <input
+                type="date"
+                value={filters.fechaDesde}
+                onChange={(e) => onFilterChange({ ...filters, fechaDesde: e.target.value })}
+                className="flex-1 px-2 sm:px-3 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div className="flex items-center space-x-2 flex-1">
+              <span className="px-2 py-1.5 bg-gray-300 text-gray-700 rounded text-xs font-medium whitespace-nowrap">
+                A
+              </span>
+              <input
+                type="date"
+                value={filters.fechaHasta}
+                onChange={(e) => onFilterChange({ ...filters, fechaHasta: e.target.value })}
+                className="flex-1 px-2 sm:px-3 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
           </div>
         </div>
 
-        {/* Bottom Row */}
+        {/* Estado Filter */}
         <div className="space-y-2">
-          <label className="block text-sm font-bold text-gray-700">
+          <label className="block text-xs sm:text-sm font-bold text-gray-700">
             Estado del pedido:
           </label>
           <select
             value={filters.estado}
             onChange={(e) => onFilterChange({ ...filters, estado: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-2 sm:px-3 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             {estadoOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -102,14 +107,15 @@ export const FilterForm = ({
           </select>
         </div>
 
-        <div></div> {/* Empty cell for grid alignment */}
+        {/* Empty cell for grid alignment on desktop */}
+        <div className="hidden md:block"></div>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex items-center space-x-3 mt-4">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 mt-3 sm:mt-4">
         <button
           onClick={onSearch}
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          className="flex items-center justify-center space-x-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm sm:text-base"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -119,7 +125,7 @@ export const FilterForm = ({
         
         <button
           onClick={onReset}
-          className="flex items-center space-x-2 px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
+          className="flex items-center justify-center space-x-2 px-3 sm:px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors text-sm sm:text-base"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />

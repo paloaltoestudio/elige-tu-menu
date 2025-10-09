@@ -6,10 +6,11 @@ import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { MisSolicitudesPage } from './pages/MisSolicitudesPage';
 import { SolicitarServicioPage } from './pages/SolicitarServicioPage';
+import { ChangePasswordPage } from './pages/ChangePasswordPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 function App() {
-  const { isAuthenticated, loading, initializeAuth } = useAuthStore();
+  const { isAuthenticated, initializing, initializeAuth } = useAuthStore();
   
   // Initialize authentication and start token validation
   useEffect(() => {
@@ -19,8 +20,8 @@ function App() {
   // Start token validation for authenticated users
   useTokenValidation();
 
-  // Show loading while authentication is being initialized
-  if (loading) {
+  // Show loading ONLY while authentication is being initialized (not during login)
+  if (initializing) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">
@@ -60,6 +61,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <SolicitarServicioPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/cambiar-contrasena" 
+            element={
+              <ProtectedRoute>
+                <ChangePasswordPage />
               </ProtectedRoute>
             } 
           />

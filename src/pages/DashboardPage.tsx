@@ -36,14 +36,16 @@ export const DashboardPage = () => {
               </div>
             </Link>
             
-            <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-purple-900 mb-2">
-                Perfil
-              </h3>
-              <p className="text-purple-700 text-sm">
-                Gestiona tu información personal
-              </p>
-            </div>
+            <Link to="/cambiar-contrasena" className="block">
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-6 hover:bg-purple-100 transition-colors cursor-pointer">
+                <h3 className="text-lg font-semibold text-purple-900 mb-2">
+                  Perfil
+                </h3>
+                <p className="text-purple-700 text-sm">
+                  Gestiona tu información personal
+                </p>
+              </div>
+            </Link>
           </div>
         </div>
       </main>

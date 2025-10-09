@@ -1,6 +1,6 @@
 import { jwtDecode } from 'jwt-decode';
 import apiClient from './api';
-import type { AuthResponse, LoginCredentials, User } from '../types/auth';
+import type { AuthResponse, LoginCredentials, User, ChangePasswordRequest, ChangePasswordResponse } from '../types/auth';
 
 export class AuthService {
   static async login(credentials: LoginCredentials): Promise<AuthResponse> {
@@ -25,8 +25,19 @@ export class AuthService {
       console.error('Login error details:', error);
       console.error('Error response:', error.response);
       
-      // Handle API error responses
-      const errorMessage = error.response?.data?.mensaje || error.message || 'Error de autenticación';
+      // Handle API error responses with user-friendly messages
+      let errorMessage = error.response?.data?.mensaje || error.message || 'Error de autenticación';
+      
+      // Map API errors to user-friendly messages
+      if (errorMessage.toLowerCase().includes('credenciales') ||
+          errorMessage.toLowerCase().includes('usuario') ||
+          errorMessage.toLowerCase().includes('contraseña') ||
+          errorMessage.toLowerCase().includes('password') ||
+          error.response?.status === 401 ||
+          error.response?.status === 403) {
+        errorMessage = 'Datos incorrectos';
+      }
+      
       throw new Error(errorMessage);
     }
   }
@@ -98,5 +109,31 @@ export class AuthService {
       }
     }
     return null;
+  }
+
+  static async changePassword(request: ChangePasswordRequest): Promise<ChangePasswordResponse> {
+    try {
+      const formData = new URLSearchParams();
+      formData.append('tk', request.tk);
+      formData.append('numero_documento', request.numero_documento);
+      formData.append('clave_actual', request.clave_actual);
+      formData.append('nueva_clave', request.nueva_clave);
+      formData.append('confirmar_clave', request.confirmar_clave);
+
+      console.log('Change password request for:', request.numero_documento);
+
+      const response = await apiClient.post('/api/ws_eligetumenu/actualizar_clave', formData, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
+      
+      console.log('Change password response:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('Change password error:', error);
+      const errorMessage = error.response?.data?.mensaje || error.message || 'Error al cambiar la contraseña';
+      throw new Error(errorMessage);
+    }
   }
 }

@@ -46,12 +46,12 @@ export const LoginForm = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md mx-4">
-      <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+    <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 lg:p-8 w-full max-w-md">
+      <h2 className="text-xl sm:text-2xl font-bold text-center text-gray-800 mb-4 sm:mb-6">
         Iniciar Sesión
       </h2>
       
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
         <Input
           label="Usuario"
           type="text"
@@ -70,7 +70,7 @@ export const LoginForm = () => {
           required
         />
         
-        <div className="flex items-center">
+        <div className="flex items-center py-1">
           <input
             id="remember-me"
             type="checkbox"
@@ -78,23 +78,23 @@ export const LoginForm = () => {
             onChange={(e) => setRememberMe(e.target.checked)}
             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
           />
-          <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+          <label htmlFor="remember-me" className="ml-2 block text-xs sm:text-sm text-gray-700">
             Recordar datos en este equipo
           </label>
         </div>
         
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-md p-3">
-            <p className="text-sm text-red-600">{error}</p>
+            <p className="text-xs sm:text-sm text-red-600">{error}</p>
           </div>
         )}
         
-        <div className="flex space-x-3">
+        <div className="flex flex-col sm:flex-row gap-3 sm:space-x-3 pt-2">
           <Button
             type="submit"
             variant="primary"
             disabled={loading}
-            className="flex-1"
+            className="flex-1 w-full"
           >
             {loading ? 'Ingresando...' : 'Ingresar'}
           </Button>
@@ -102,7 +102,7 @@ export const LoginForm = () => {
           <Button
             type="button"
             variant="outline"
-            className="flex-1"
+            className="flex-1 w-full"
             onClick={handleCancel}
           >
             Cancelar
@@ -113,7 +113,7 @@ export const LoginForm = () => {
       <div className="mt-4 text-center">
         <a
           href="#"
-          className="text-sm text-blue-600 hover:text-blue-500"
+          className="text-xs sm:text-sm text-blue-600 hover:text-blue-500"
         >
           ¿Olvidó la contraseña?
         </a>
