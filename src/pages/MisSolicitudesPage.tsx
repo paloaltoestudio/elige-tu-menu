@@ -22,9 +22,11 @@ export const MisSolicitudesPage = () => {
     loading,
     error,
     filters: storeFilters,
+    availableMenus,
     fetchSolicitudes,
     updateFilters,
     clearError,
+    resetFilterOptions,
   } = useSolicitudesStore();
 
   const itemsPerPage = 10;
@@ -61,6 +63,7 @@ export const MisSolicitudesPage = () => {
     };
     setFilters(resetFilters);
     updateFilters(resetFilters);
+    resetFilterOptions(); // Reset filter options so they reload on next fetch
     fetchSolicitudes(1, itemsPerPage, resetFilters);
     clearError();
   };
@@ -106,6 +109,7 @@ export const MisSolicitudesPage = () => {
                     onFilterChange={handleFilterChange}
                     onSearch={handleSearch}
                     onReset={handleReset}
+                    availableMenus={availableMenus}
                   />
                 </div>
               )}

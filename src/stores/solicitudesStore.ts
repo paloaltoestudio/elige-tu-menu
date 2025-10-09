@@ -17,9 +17,11 @@ interface SolicitudesState {
     fechaHasta: string;
     estado: string;
   };
+  availableMenus: string[];
   fetchSolicitudes: (page?: number, itemsPerPage?: number, filters?: SolicitudesState['filters']) => Promise<void>;
   updateFilters: (filters: Partial<SolicitudesState['filters']>) => void;
   clearError: () => void;
+  resetFilterOptions: () => void;
 }
 
 export const useSolicitudesStore = create<SolicitudesState>((set, get) => ({
@@ -35,6 +37,7 @@ export const useSolicitudesStore = create<SolicitudesState>((set, get) => ({
     fechaHasta: '',
     estado: '',
   },
+  availableMenus: [],
 
   fetchSolicitudes: async (page = 1, itemsPerPage = 10, filters = get().filters) => {
     set({ loading: true, error: null });
@@ -63,6 +66,7 @@ export const useSolicitudesStore = create<SolicitudesState>((set, get) => ({
       } else {
         // Default to last 6 months if no date filters
         const endDate = new Date();
+        endDate.setDate(endDate.getDate() + 15);
         const startDate = new Date();
         startDate.setMonth(startDate.getMonth() - 6);
         fechaInicial = startDate.toISOString().split('T')[0];
@@ -93,11 +97,25 @@ export const useSolicitudesStore = create<SolicitudesState>((set, get) => ({
         }
       }
       
+      // Only extract unique menus on initial load (when no filters are applied)
+      // This ensures all options remain available even after filtering
+      const currentState = get();
+      const isInitialLoad = currentState.availableMenus.length === 0 && 
+                            !filters.menu && 
+                            !filters.estado;
+      
+      let uniqueMenus = currentState.availableMenus;
+      
+      if (isInitialLoad) {
+        uniqueMenus = [...new Set(pedidosArray.map(p => p.menu))].filter(Boolean).sort();
+      }
+      
       set({
         solicitudes: pedidosArray,
         total: response.paginacion?.total_registros || 0,
         currentPage: response.paginacion?.pagina_actual || page,
         totalPages: response.paginacion?.total_paginas || 0,
+        availableMenus: uniqueMenus,
         loading: false,
         error: null,
       });
@@ -121,5 +139,9 @@ export const useSolicitudesStore = create<SolicitudesState>((set, get) => ({
 
   clearError: () => {
     set({ error: null });
+  },
+
+  resetFilterOptions: () => {
+    set({ availableMenus: [] });
   },
 }));

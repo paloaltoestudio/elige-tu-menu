@@ -59,7 +59,8 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
     try {
       const response = await SolicitarServicioService.getDiasDisponibles({ tk, numero_documento: numeroDocumento });
       // Sort days by date to ensure linear order
-      const sortedDays = response.dias_disponibles.sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
+      const dias = response.dias_disponibles || [];
+      const sortedDays = dias.sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
       set({ 
         diasDisponibles: sortedDays,
         diaSeleccionado: sortedDays.length > 0 ? sortedDays[0] : null,

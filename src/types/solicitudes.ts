@@ -3,7 +3,7 @@ export interface Solicitud {
   restaurante: string;
   tipo_servicio: string;
   fecha_pedido: string;
-  estado: 'SOLICITADO' | 'CONFIRMADO' | 'PREPARANDO' | 'ENTREGADO' | 'CANCELADO';
+  estado: 'SOLICITADO' | 'DESPACHADO' | 'CANCELADO' | 'EN NOVEDAD';
 }
 
 export interface SolicitudesResponse {

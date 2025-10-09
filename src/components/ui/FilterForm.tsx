@@ -13,22 +13,28 @@ interface FilterFormProps {
   }) => void;
   onSearch: () => void;
   onReset: () => void;
+  availableMenus?: string[];
 }
 
-export const FilterForm = ({ filters, onFilterChange, onSearch, onReset }: FilterFormProps) => {
+export const FilterForm = ({ 
+  filters, 
+  onFilterChange, 
+  onSearch, 
+  onReset,
+  availableMenus = []
+}: FilterFormProps) => {
   const menuOptions = [
     { value: '', label: '-- Seleccione Menú --' },
-    { value: 'MENU PRUEBA 01', label: 'MENU PRUEBA 01' },
-    { value: 'MENU PRUEBA QA DANI', label: 'MENU PRUEBA QA DANI' },
+    ...availableMenus.map(menu => ({ value: menu, label: menu }))
   ];
 
+  // Static estado options
   const estadoOptions = [
     { value: '', label: '-- Seleccione Estado del pedido --' },
     { value: 'SOLICITADO', label: 'SOLICITADO' },
-    { value: 'CONFIRMADO', label: 'CONFIRMADO' },
-    { value: 'PREPARANDO', label: 'PREPARANDO' },
-    { value: 'ENTREGADO', label: 'ENTREGADO' },
+    { value: 'DESPACHADO', label: 'DESPACHADO' },
     { value: 'CANCELADO', label: 'CANCELADO' },
+    { value: 'EN NOVEDAD', label: 'EN NOVEDAD' },
   ];
 
   return (
