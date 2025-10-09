@@ -9,9 +9,14 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
 
   const navigationItems = [
     {
+      label: 'Inicio',
+      path: '/dashboard',
+      active: location.pathname === '/dashboard',
+    },
+    {
       label: 'Solicitar Servicio',
-      path: '/solicitar',
-      active: false,
+      path: '/solicitar-servicio',
+      active: location.pathname === '/solicitar-servicio',
     },
     {
       label: 'Videos y tutoriales',
