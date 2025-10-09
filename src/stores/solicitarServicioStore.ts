@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { SolicitarServicioService } from '../services/solicitarServicioService';
 import type {
   SolicitarServicioState,
-  DiaDisponible,
+  // DiaDisponible,
   TipoServicio,
   Restaurante,
   Menu
