@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import Swal from 'sweetalert2';
 import { Sidebar } from '../components/layout/Sidebar';
 import { Header } from '../components/layout/Header';
 import { Footer } from '../components/layout/Footer';
 import { Button } from '../components/ui/Button';
+import { StatusLabel } from '../components/ui/StatusLabel';
 import { useAuthStore } from '../stores/authStore';
 import { useCancelOrdersStore } from '../stores/cancelOrdersStore';
 
@@ -28,12 +30,35 @@ export const CancelOrdersPage = () => {
 
   const handleCancelOrder = async (order: any) => {
     if (user && token && user.documento) {
-      const confirmed = window.confirm(
-        `¿Estás seguro de que deseas cancelar el pedido del ${order.fecha_pedido}?\n\nMenú: ${order.nombre_menu}`
-      );
+      const result = await Swal.fire({
+        title: '¿Cancelar pedido?',
+        html: `
+          <div class="text-left">
+            <p class="mb-3"><strong>Fecha:</strong> ${formatDate(order.fecha_pedido)}</p>
+            <p class="mb-3"><strong>Menú:</strong> ${order.nombre_menu}</p>
+            <p class="text-sm text-gray-600">¿Estás seguro de que deseas cancelar este pedido?</p>
+          </div>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Sí, cancelar',
+        cancelButtonText: 'No, mantener',
+        reverseButtons: true
+      });
       
-      if (confirmed) {
+      if (result.isConfirmed) {
         await cancelOrder(token, user.documento, order);
+        
+        // Show success message
+        Swal.fire({
+          title: '¡Pedido cancelado!',
+          text: 'El pedido ha sido cancelado exitosamente.',
+          icon: 'success',
+          confirmButtonColor: '#10b981',
+          confirmButtonText: 'Entendido'
+        });
       }
     }
   };
@@ -180,9 +205,7 @@ export const CancelOrdersPage = () => {
                             {formatDate(order.fecha_pedido)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                              SOLICITADO
-                            </span>
+                            <StatusLabel status="SOLICITADO" />
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             <Button

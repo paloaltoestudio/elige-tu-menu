@@ -20,10 +20,10 @@ export const DashboardPage = () => {
         <main className="flex-1 p-3 sm:p-4 lg:p-8">
         <div className="bg-white rounded-lg shadow p-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-6">
-            Bienvenido al Sistema de Menú
+            Escoje qué deseas hacer hoy 
           </h1>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Link to="/solicitar-servicio" className="block">
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 hover:bg-blue-100 transition-colors cursor-pointer">
                 <h3 className="text-lg font-semibold text-blue-900 mb-2">
@@ -42,6 +42,17 @@ export const DashboardPage = () => {
                 </h3>
                 <p className="text-green-700 text-sm">
                   Revisa tus solicitudes anteriores
+                </p>
+              </div>
+            </Link>
+            
+            <Link to="/cancelaciones" className="block">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-6 hover:bg-red-100 transition-colors cursor-pointer">
+                <h3 className="text-lg font-semibold text-red-900 mb-2">
+                  Cancelar Pedidos
+                </h3>
+                <p className="text-red-700 text-sm">
+                  Cancela pedidos dentro de las horas habilitadas
                 </p>
               </div>
             </Link>
