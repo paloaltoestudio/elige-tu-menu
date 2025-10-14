@@ -4,6 +4,7 @@ import { Header } from '../components/layout/Header';
 import { Footer } from '../components/layout/Footer';
 import { Pagination } from '../components/ui/Pagination';
 import { FilterForm } from '../components/ui/FilterForm';
+import { StatusLabel } from '../components/ui/StatusLabel';
 import { useSolicitudesStore } from '../stores/solicitudesStore';
 
 export const MisSolicitudesPage = () => {
@@ -151,9 +152,7 @@ export const MisSolicitudesPage = () => {
                                 <p className="text-sm font-semibold text-gray-900">{solicitud.menu}</p>
                                 <p className="text-xs text-gray-500 mt-1">{solicitud.restaurante}</p>
                               </div>
-                              <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 whitespace-nowrap ml-2">
-                                {solicitud.estado}
-                              </span>
+                              <StatusLabel status={solicitud.estado as any} className="ml-2" />
                             </div>
                             <div className="text-xs text-gray-600">
                               <p><span className="font-medium">Tipo:</span> {solicitud.tipo_servicio}</p>
@@ -211,9 +210,7 @@ export const MisSolicitudesPage = () => {
                               {solicitud.fecha_pedido}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                {solicitud.estado}
-                              </span>
+                              <StatusLabel status={solicitud.estado as any} />
                             </td>
                           </tr>
                         ))

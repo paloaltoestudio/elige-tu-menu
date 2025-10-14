@@ -47,7 +47,7 @@ export const Sidebar = ({ className = '', isMobileMenuOpen, setIsMobileMenuOpen 
       {/* Backdrop for mobile */}
       {isMobileMenuOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
@@ -55,13 +55,13 @@ export const Sidebar = ({ className = '', isMobileMenuOpen, setIsMobileMenuOpen 
       {/* Sidebar */}
       <nav
         className={`bg-white border-r border-gray-200 w-64 min-h-screen
-          fixed lg:static inset-y-0 left-0 z-40
+          fixed md:static inset-y-0 left-0 z-40
           transform transition-transform duration-300 ease-in-out
-          ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
           ${className}`}
       >
         <div className="p-4 lg:p-6">
-          <div className="flex items-center justify-between mb-4 lg:hidden">
+          <div className="flex items-center justify-between mb-4 md:hidden">
             <h2 className="text-lg font-semibold text-gray-900">Menú</h2>
             <button
               onClick={() => setIsMobileMenuOpen(false)}

@@ -3,6 +3,7 @@ export { Button } from './ui/Button';
 export { Input } from './ui/Input';
 export { Pagination } from './ui/Pagination';
 export { FilterForm } from './ui/FilterForm';
+export { StatusLabel } from './ui/StatusLabel';
 
 // Auth Components
 export { LoginForm } from './auth/LoginForm';
