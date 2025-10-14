@@ -8,6 +8,7 @@ import { useSolicitudesStore } from '../stores/solicitudesStore';
 
 export const MisSolicitudesPage = () => {
   const [showFilters, setShowFilters] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [filters, setFilters] = useState({
     menu: '',
     fechaDesde: '',
@@ -70,10 +71,13 @@ export const MisSolicitudesPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
       
       <div className="flex">
-        <Sidebar />
+        <Sidebar 
+          isMobileMenuOpen={isMobileMenuOpen}
+          setIsMobileMenuOpen={setIsMobileMenuOpen}
+        />
         
         <main className="flex-1 p-3 sm:p-4 lg:p-8 w-full lg:w-auto">
           <div className="bg-white rounded-lg shadow-sm">

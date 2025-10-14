@@ -11,6 +11,7 @@ import { AuthService } from '../services/authService';
 export const ChangePasswordPage = () => {
   const navigate = useNavigate();
   const { user, token } = useAuthStore();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   const [formData, setFormData] = useState({
     currentPassword: '',
@@ -160,10 +161,13 @@ export const ChangePasswordPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
       
       <div className="flex">
-        <Sidebar />
+        <Sidebar 
+          isMobileMenuOpen={isMobileMenuOpen}
+          setIsMobileMenuOpen={setIsMobileMenuOpen}
+        />
         
         <main className="flex-1 p-8">
           <div className="max-w-2xl mx-auto">

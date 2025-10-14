@@ -1,13 +1,13 @@
-import { useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 
 interface SidebarProps {
   className?: string;
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (open: boolean) => void;
 }
 
-export const Sidebar = ({ className = '' }: SidebarProps) => {
+export const Sidebar = ({ className = '', isMobileMenuOpen, setIsMobileMenuOpen }: SidebarProps) => {
   const location = useLocation();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navigationItems = [
     {
@@ -44,21 +44,6 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
 
   return (
     <>
-      {/* Mobile menu button */}
-      <button
-        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-1 right-2 z-50 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
-        aria-label="Toggle menu"
-      >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          {isMobileMenuOpen ? (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          ) : (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          )}
-        </svg>
-      </button>
-
       {/* Backdrop for mobile */}
       {isMobileMenuOpen && (
         <div

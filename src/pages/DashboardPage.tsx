@@ -1,13 +1,23 @@
+import { useState } from 'react';
 import { Header } from '../components/layout/Header';
+import { Sidebar } from '../components/layout/Sidebar';
 import { Footer } from '../components/layout/Footer';
 import { Link } from 'react-router-dom';
 
 export const DashboardPage = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex">
+        <Sidebar 
+          isMobileMenuOpen={isMobileMenuOpen}
+          setIsMobileMenuOpen={setIsMobileMenuOpen}
+        />
+        
+        <main className="flex-1 p-3 sm:p-4 lg:p-8">
         <div className="bg-white rounded-lg shadow p-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-6">
             Bienvenido al Sistema de Menú
@@ -48,7 +58,8 @@ export const DashboardPage = () => {
             </Link>
           </div>
         </div>
-      </main>
+        </main>
+      </div>
       
       <Footer />
     </div>

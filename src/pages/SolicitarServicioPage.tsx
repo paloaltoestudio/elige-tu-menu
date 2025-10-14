@@ -10,6 +10,7 @@ import { useSolicitarServicioStore } from '../stores/solicitarServicioStore';
 export const SolicitarServicioPage = () => {
   const navigate = useNavigate();
   const { user, token } = useAuthStore();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   const {
     diasDisponibles,
@@ -166,10 +167,13 @@ export const SolicitarServicioPage = () => {
   if (!loading && diasDisponibles.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
+        <Header onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
         
         <div className="flex">
-          <Sidebar />
+          <Sidebar 
+            isMobileMenuOpen={isMobileMenuOpen}
+            setIsMobileMenuOpen={setIsMobileMenuOpen}
+          />
           
           <main className="flex-1 p-8">
             <div className="bg-white rounded-lg shadow p-6">
@@ -191,10 +195,13 @@ export const SolicitarServicioPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
       
       <div className="flex">
-        <Sidebar />
+        <Sidebar 
+          isMobileMenuOpen={isMobileMenuOpen}
+          setIsMobileMenuOpen={setIsMobileMenuOpen}
+        />
         
         <main className="flex-1 p-8">
         <div className="bg-white rounded-lg shadow p-6">
@@ -456,25 +463,25 @@ export const SolicitarServicioPage = () => {
                 
                 {/* Order Details */}
                 <div className="space-y-2 mb-4">
-                  <div className="flex justify-between">
+                  <div className="flex flex-col sm:flex-row justify-between">
                     <span className="text-gray-600">Día:</span>
                     <span className="font-medium">{diaSeleccionado?.nombre} - {diaSeleccionado?.fecha}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex flex-col sm:flex-row justify-between">
                     <span className="text-gray-600">Restaurante:</span>
                     <span className="font-medium">{restauranteSeleccionado?.nombre}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex flex-col sm:flex-row justify-between">
                     <span className="text-gray-600">Tipo de Servicio:</span>
                     <span className="font-medium">{tipoServicioSeleccionado?.nombre}</span>
                   </div>
                   {declinarBeneficio ? (
-                    <div className="flex justify-between">
+                    <div className="flex flex-col sm:flex-row justify-between">
                       <span className="text-gray-600">Opción:</span>
                       <span className="font-medium text-red-600">Beneficio Declinado</span>
                     </div>
                   ) : (
-                    <div className="flex justify-between">
+                    <div className="flex flex-col sm:flex-row justify-between">
                       <span className="text-gray-600">Menú:</span>
                       <span className="font-medium">{menuSeleccionado?.nombre}</span>
                     </div>
