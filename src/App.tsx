@@ -7,6 +7,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { MisSolicitudesPage } from './pages/MisSolicitudesPage';
 import { SolicitarServicioPage } from './pages/SolicitarServicioPage';
 import { ChangePasswordPage } from './pages/ChangePasswordPage';
+import { CancelOrdersPage } from './pages/CancelOrdersPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 function App() {
@@ -64,14 +65,22 @@ function App() {
               </ProtectedRoute>
             } 
           />
-          <Route 
-            path="/cambiar-contrasena" 
-            element={
-              <ProtectedRoute>
-                <ChangePasswordPage />
-              </ProtectedRoute>
-            } 
-          />
+              <Route 
+                path="/cambiar-contrasena" 
+                element={
+                  <ProtectedRoute>
+                    <ChangePasswordPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/cancelaciones" 
+                element={
+                  <ProtectedRoute>
+                    <CancelOrdersPage />
+                  </ProtectedRoute>
+                } 
+              />
           <Route 
             path="/" 
             element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />} 

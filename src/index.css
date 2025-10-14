@@ -1,18 +1,7 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Test styles to verify Tailwind is working */
-.test-tailwind {
-  background-color: rgb(239 68 68);
-  color: rgb(255 255 255);
-  padding: 1rem;
-}
-
-body {
-  font-family: ui-sans-serif, system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* Fade-in animation for tab content */
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-in;
 }
