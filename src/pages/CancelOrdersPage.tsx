@@ -5,11 +5,21 @@ import { Header } from '../components/layout/Header';
 import { Footer } from '../components/layout/Footer';
 import { Button } from '../components/ui/Button';
 import { StatusLabel } from '../components/ui/StatusLabel';
+import { FilterForm } from '../components/ui/FilterForm';
 import { useAuthStore } from '../stores/authStore';
 import { useCancelOrdersStore } from '../stores/cancelOrdersStore';
 
 export const CancelOrdersPage = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    menu: '',
+    fechaDesde: '',
+    fechaHasta: '',
+    estado: ''
+  });
+  const [availableMenus, setAvailableMenus] = useState<string[]>([]);
+  
   const { user, token } = useAuthStore();
   
   const {
@@ -27,6 +37,14 @@ export const CancelOrdersPage = () => {
       fetchOrdersToCancel(token, user.documento);
     }
   }, [user, token, fetchOrdersToCancel]);
+
+  // Extract unique menus from orders
+  useEffect(() => {
+    if (ordersToCancel.length > 0) {
+      const uniqueMenus = [...new Set(ordersToCancel.map(order => order.nombre_menu))].filter(Boolean).sort();
+      setAvailableMenus(uniqueMenus);
+    }
+  }, [ordersToCancel]);
 
   const handleCancelOrder = async (order: any) => {
     if (user && token && user.documento) {
@@ -68,6 +86,49 @@ export const CancelOrdersPage = () => {
     const [year, month, day] = dateString.split('-');
     return `${day}-${month}-${year}`;
   };
+
+  const handleFilterChange = (newFilters: typeof filters) => {
+    setFilters(newFilters);
+  };
+
+  const handleSearch = () => {
+    if (user && token && user.documento) {
+      fetchOrdersToCancel(token, user.documento);
+    }
+  };
+
+  const handleReset = () => {
+    setFilters({
+      menu: '',
+      fechaDesde: '',
+      fechaHasta: '',
+      estado: ''
+    });
+    if (user && token && user.documento) {
+      fetchOrdersToCancel(token, user.documento);
+    }
+  };
+
+  // Filter orders based on current filters
+  const filteredOrders = ordersToCancel.filter(order => {
+    if (filters.menu && order.nombre_menu !== filters.menu) return false;
+    if (filters.estado && 'SOLICITADO' !== filters.estado) return false; // All orders are SOLICITADO
+    
+    // Date filtering
+    if (filters.fechaDesde || filters.fechaHasta) {
+      const orderDate = new Date(order.fecha_pedido);
+      if (filters.fechaDesde) {
+        const desdeDate = new Date(filters.fechaDesde);
+        if (orderDate < desdeDate) return false;
+      }
+      if (filters.fechaHasta) {
+        const hastaDate = new Date(filters.fechaHasta);
+        if (orderDate > hastaDate) return false;
+      }
+    }
+    
+    return true;
+  });
 
   if (loading && ordersToCancel.length === 0) {
     return (
@@ -142,20 +203,28 @@ export const CancelOrdersPage = () => {
             {/* Search Button */}
             <div className="px-3 sm:px-4 lg:px-6 py-4 border-b border-gray-200">
               <Button
-                onClick={() => {
-                  if (user && token && user.documento) {
-                    fetchOrdersToCancel(token, user.documento);
-                  }
-                }}
+                onClick={() => setShowFilters(!showFilters)}
                 variant="outline"
                 size="sm"
-                disabled={loading}
                 className="bg-gray-100 text-gray-700 hover:bg-gray-200"
               >
-                <i className="fa-solid fa-chevron-down mr-2"></i>
+                <i className={`fa-solid fa-chevron-${showFilters ? 'up' : 'down'} mr-2`}></i>
                 Realizar búsqueda
               </Button>
             </div>
+
+            {/* Filter Form - Collapsible */}
+            {showFilters && (
+              <div className="px-3 sm:px-4 lg:px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <FilterForm
+                  filters={filters}
+                  onFilterChange={handleFilterChange}
+                  onSearch={handleSearch}
+                  onReset={handleReset}
+                  availableMenus={availableMenus}
+                />
+              </div>
+            )}
 
             {/* Orders Table */}
             <div className="px-3 sm:px-4 lg:px-6 py-4">
@@ -164,7 +233,7 @@ export const CancelOrdersPage = () => {
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
                   <p className="text-gray-600">Cargando pedidos...</p>
                 </div>
-              ) : ordersToCancel.length === 0 ? (
+              ) : filteredOrders.length === 0 ? (
                 <div className="text-center py-8">
                   <i className="fa-solid fa-check-circle text-4xl text-green-500 mb-4"></i>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -175,61 +244,101 @@ export const CancelOrdersPage = () => {
                   </p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Menú
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Fecha del pedido
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Estado del pedido
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Acciones
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {ordersToCancel.map((order) => (
-                        <tr key={order.registro} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-blue-600">
+                <>
+                  {/* Mobile Card View */}
+                  <div className="block lg:hidden space-y-4">
+                    {filteredOrders.map((order) => (
+                      <div key={order.registro} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <div className="flex flex-col justify-between items-start mb-3">
+                          <div className="flex-1 mb-3">
+                            <h3 className="text-sm font-medium text-blue-600 mb-1">
                               {order.nombre_menu}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {formatDate(order.fecha_pedido)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <StatusLabel status="SOLICITADO" />
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <Button
-                              onClick={() => handleCancelOrder(order)}
-                              variant="outline"
-                              size="sm"
-                              disabled={cancelingOrderId === order.registro}
-                              className="text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700"
-                            >
-                              {cancelingOrderId === order.registro ? (
-                                <>
-                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600 mr-2"></div>
-                                  Cancelando...
-                                </>
-                              ) : (
-                                'Cancelar'
-                              )}
-                            </Button>
-                          </td>
+                            </h3>
+                            <p className="text-xs text-gray-500">
+                              Fecha: {formatDate(order.fecha_pedido)}
+                            </p>
+                          </div>
+                          <StatusLabel status="SOLICITADO" />
+                        </div>
+                        <div className="flex justify-end">
+                          <Button
+                            onClick={() => handleCancelOrder(order)}
+                            variant="outline"
+                            size="sm"
+                            disabled={cancelingOrderId === order.registro}
+                            className="text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700 text-xs px-3 py-1"
+                          >
+                            {cancelingOrderId === order.registro ? (
+                              <>
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-red-600 mr-1"></div>
+                                Cancelando...
+                              </>
+                            ) : (
+                              'Cancelar'
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Desktop Table View */}
+                  <div className="hidden lg:block overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Menú
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Fecha del pedido
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Estado del pedido
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Acciones
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {filteredOrders.map((order) => (
+                          <tr key={order.registro} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-medium text-blue-600">
+                                {order.nombre_menu}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {formatDate(order.fecha_pedido)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              <StatusLabel status="SOLICITADO" />
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              <Button
+                                onClick={() => handleCancelOrder(order)}
+                                variant="outline"
+                                size="sm"
+                                disabled={cancelingOrderId === order.registro}
+                                className="text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700"
+                              >
+                                {cancelingOrderId === order.registro ? (
+                                  <>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600 mr-2"></div>
+                                    Cancelando...
+                                  </>
+                                ) : (
+                                  'Cancelar'
+                                )}
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               )}
             </div>
           </div>
