@@ -79,26 +79,8 @@ export const SolicitarServicioPage = () => {
   // Track menu loading separately
   const [isLoadingMenus, setIsLoadingMenus] = useState(false);
 
-  // Force refetch menus on component mount if data is already available
-  // This handles the case when user navigates back to the page
-  useEffect(() => {
-    if (isInitialMount.current && user && token && (user.documento || user.sub) && 
-        diaSeleccionado && tipoServicioSeleccionado && restauranteSeleccionado) {
-      const documentNumber = user.documento || user.sub;
-      console.log('SolicitarServicioPage - Refetching menus on mount for editing');
-      setIsLoadingMenus(true);
-      fetchMenus(
-        token,
-        documentNumber,
-        restauranteSeleccionado.id,
-        tipoServicioSeleccionado.id,
-        diaSeleccionado.id
-      ).finally(() => {
-        setIsLoadingMenus(false);
-      });
-      isInitialMount.current = false;
-    }
-  }, [user, token, diaSeleccionado, tipoServicioSeleccionado, restauranteSeleccionado, fetchMenus]);
+  // Track the last fetch key to prevent duplicate fetches
+  const lastFetchKey = useRef<string | null>(null);
 
   // Reset preselection flag on mount and when day, restaurant, or service type changes
   // This ensures menu gets preselected when user comes back to the page
@@ -109,19 +91,32 @@ export const SolicitarServicioPage = () => {
 
   // Fetch menus when restaurant and service type are selected
   useEffect(() => {
-    if (!isInitialMount.current && user && token && (user.documento || user.sub) && 
+    if (user && token && (user.documento || user.sub) && 
         diaSeleccionado && tipoServicioSeleccionado && restauranteSeleccionado) {
       const documentNumber = user.documento || user.sub;
-      setIsLoadingMenus(true);
-      fetchMenus(
-        token,
-        documentNumber,
-        restauranteSeleccionado.id,
-        tipoServicioSeleccionado.id,
-        diaSeleccionado.id
-      ).finally(() => {
-        setIsLoadingMenus(false);
-      });
+      
+      // Create a unique key for this fetch to prevent duplicates
+      const fetchKey = `${restauranteSeleccionado.id}-${tipoServicioSeleccionado.id}-${diaSeleccionado.id}`;
+      
+      // Only fetch if this is a different combination or first mount
+      if (lastFetchKey.current !== fetchKey || isInitialMount.current) {
+        console.log('SolicitarServicioPage - Fetching menus for:', fetchKey);
+        lastFetchKey.current = fetchKey;
+        isInitialMount.current = false;
+        
+        setIsLoadingMenus(true);
+        fetchMenus(
+          token,
+          documentNumber,
+          restauranteSeleccionado.id,
+          tipoServicioSeleccionado.id,
+          diaSeleccionado.id
+        ).finally(() => {
+          setIsLoadingMenus(false);
+        });
+      } else {
+        console.log('SolicitarServicioPage - Skipping duplicate fetch for:', fetchKey);
+      }
     }
   }, [user, token, diaSeleccionado, tipoServicioSeleccionado, restauranteSeleccionado, fetchMenus]);
 
