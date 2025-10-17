@@ -80,30 +80,23 @@ export const MisSolicitudesPage = () => {
           setIsMobileMenuOpen={setIsMobileMenuOpen}
         />
         
-        <main className="flex-1 p-3 sm:p-4 lg:p-8 w-full lg:w-auto">
-          <div className="bg-white rounded-lg shadow-sm">
+        <main className="flex-1 p-8">
+          <div className="bg-white rounded-lg shadow p-6">
             {/* Page Title */}
-            <div className="border-b border-gray-200 px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
-              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Mis solicitudes</h1>
+            <div className="border-b border-gray-200 pb-3">
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900">Mis solicitudes</h1>
             </div>
 
             {/* Search Button and Filters */}
-            <div className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 border-b border-gray-200">
+            <div className="py-3 sm:py-4 border-b border-gray-200">
               <div className="flex items-center">
                 <button
                   onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 transition-colors text-sm sm:text-base"
+                  className="font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-blue-500 px-3 py-1.5 text-sm cursor-pointer bg-gray-100 text-gray-700 hover:bg-gray-200"
                 >
+                  <i className={`fa-solid fa-chevron-${showFilters ? 'up' : 'down'} mr-2`}></i>
                   <span className="hidden sm:inline">Realizar búsqueda</span>
                   <span className="sm:hidden">Buscar</span>
-                  <svg 
-                    className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
                 </button>
               </div>
               

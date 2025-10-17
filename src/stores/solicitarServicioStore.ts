@@ -11,6 +11,7 @@ import type {
 
 interface SolicitarServicioStore extends SolicitarServicioState {
   // Actions
+  checkTicketAvailability: (tk: string, numeroDocumento: string) => Promise<void>;
   fetchDiasDisponibles: (tk: string, numeroDocumento: string) => Promise<void>;
   fetchPedidosCicloActual: (tk: string, numeroDocumento: string) => Promise<void>;
   fetchTiposServicio: (tk: string, numeroDocumento: string) => Promise<void>;
@@ -48,6 +49,8 @@ const initialState: SolicitarServicioState = {
   menus: [],
   pedidosCicloActual: [],
   existingOrdersMap: {},
+  hasActiveTickets: true,
+  ticketsErrorMessage: null,
   diaSeleccionado: null,
   tipoServicioSeleccionado: null,
   restauranteSeleccionado: null,
@@ -63,6 +66,38 @@ const initialState: SolicitarServicioState = {
 
 export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, get) => ({
   ...initialState,
+
+  checkTicketAvailability: async (tk: string, numeroDocumento: string) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await SolicitarServicioService.checkDisponibilidadTickets({ tk, numero_documento: numeroDocumento });
+      
+      const ticketData = response.disponibilidad_servicio_tickets as any;
+      
+      // Check if it's an error response (has 'success' property set to false)
+      if (ticketData.success === false) {
+        set({ 
+          hasActiveTickets: false,
+          ticketsErrorMessage: ticketData.message || 'No tienes tiquetes activos para solicitar el servicio',
+          loading: false 
+        });
+      } else {
+        // User has active tickets
+        set({ 
+          hasActiveTickets: true,
+          ticketsErrorMessage: null,
+          loading: false 
+        });
+      }
+    } catch (error: any) {
+      set({ 
+        hasActiveTickets: false,
+        ticketsErrorMessage: 'Error al verificar disponibilidad de tickets',
+        error: error.message,
+        loading: false 
+      });
+    }
+  },
 
   fetchDiasDisponibles: async (tk: string, numeroDocumento: string) => {
     set({ loading: true, error: null });

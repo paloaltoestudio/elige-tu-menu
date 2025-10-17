@@ -28,8 +28,11 @@ export const SolicitarServicioPage = () => {
     error,
     currentStep,
     pedidoRealizado,
+    hasActiveTickets,
+    ticketsErrorMessage,
     isEditingDay,
     getExistingOrderForDay,
+    checkTicketAvailability,
     fetchDiasDisponibles,
     fetchTiposServicio,
     fetchRestaurantes,
@@ -46,9 +49,18 @@ export const SolicitarServicioPage = () => {
     reset
   } = useSolicitarServicioStore();
 
-  // Initialize data when component mounts
+  // Check ticket availability first when component mounts
   useEffect(() => {
     if (user && token && (user.documento || user.sub)) {
+      const documentNumber = user.documento || user.sub;
+      console.log('SolicitarServicioPage - Checking ticket availability for:', documentNumber);
+      checkTicketAvailability(token, documentNumber);
+    }
+  }, [user, token, checkTicketAvailability]);
+
+  // Initialize data when component mounts (only if user has active tickets)
+  useEffect(() => {
+    if (user && token && (user.documento || user.sub) && hasActiveTickets) {
       const documentNumber = user.documento || user.sub;
       console.log('SolicitarServicioPage - Using document number:', documentNumber);
       console.log('SolicitarServicioPage - User object:', user);
@@ -56,7 +68,7 @@ export const SolicitarServicioPage = () => {
       fetchTiposServicio(token, documentNumber);
       fetchRestaurantes(token, documentNumber);
     }
-  }, [user, token, fetchDiasDisponibles, fetchTiposServicio, fetchRestaurantes]);
+  }, [user, token, hasActiveTickets, fetchDiasDisponibles, fetchTiposServicio, fetchRestaurantes]);
 
   // Track menu loading separately
   const [isLoadingMenus, setIsLoadingMenus] = useState(false);
@@ -182,8 +194,40 @@ export const SolicitarServicioPage = () => {
     );
   }
 
+  // Show message when user has no active tickets
+  if (!loading && !hasActiveTickets) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
+        
+        <div className="flex">
+          <Sidebar 
+            isMobileMenuOpen={isMobileMenuOpen}
+            setIsMobileMenuOpen={setIsMobileMenuOpen}
+          />
+          
+          <main className="flex-1 p-8">
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="text-center py-12">
+                <svg className="w-16 h-16 mx-auto mb-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                  {ticketsErrorMessage || 'No tienes tiquetes activos para solicitar el servicio'}
+                </h2>
+                <p className="text-gray-600">Por favor, contacta al administrador para obtener más información.</p>
+              </div>
+            </div>
+          </main>
+        </div>
+        
+        <Footer />
+      </div>
+    );
+  }
+
   // Show message when there are no days available
-  if (!loading && diasDisponibles.length === 0) {
+  if (!loading && hasActiveTickets && diasDisponibles.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />

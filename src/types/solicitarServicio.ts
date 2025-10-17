@@ -130,6 +130,30 @@ export interface ModificarPedidoResponse {
   success: boolean;
 }
 
+// Types for ticket availability
+export interface TicketDisponible {
+  nombre: string;
+  fecha_ffin: string;
+}
+
+export type DisponibilidadTicketsSuccess = Record<string, TicketDisponible>;
+
+export interface DisponibilidadTicketsError {
+  success: false;
+  message: string;
+}
+
+export interface DisponibilidadTicketsRequest {
+  tk: string;
+  numero_documento: string;
+}
+
+export interface DisponibilidadTicketsResponse {
+  codigo: string;
+  mensaje: string;
+  disponibilidad_servicio_tickets: DisponibilidadTicketsSuccess | DisponibilidadTicketsError;
+}
+
 // State types for the component
 export interface SolicitarServicioState {
   // Available data
@@ -143,6 +167,10 @@ export interface SolicitarServicioState {
   
   // Map to track which days have existing orders (day_id -> order_id)
   existingOrdersMap: Record<number, number>;
+  
+  // Ticket availability
+  hasActiveTickets: boolean;
+  ticketsErrorMessage: string | null;
   
   // Current selections
   diaSeleccionado: DiaDisponible | null;

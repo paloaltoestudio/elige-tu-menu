@@ -168,11 +168,11 @@ export const CancelOrdersPage = () => {
           setIsMobileMenuOpen={setIsMobileMenuOpen}
         />
         
-        <main className="flex-1 p-3 sm:p-4 lg:p-8">
-          <div className="bg-white rounded-lg shadow-sm">
+        <main className="flex-1 p-8">
+          <div className="bg-white rounded-lg shadow p-6">
             {/* Page Title */}
-            <div className="border-b border-gray-200 px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
-              <h1 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900">
+            <div className="border-b border-gray-200 pb-3">
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900">
                 Cancelar Pedidos
               </h1>
               <p className="text-sm text-gray-600 mt-1">
@@ -201,7 +201,7 @@ export const CancelOrdersPage = () => {
             )}
 
             {/* Search Button */}
-            <div className="px-3 sm:px-4 lg:px-6 py-4 border-b border-gray-200">
+            <div className="py-4 border-b border-gray-200">
               <Button
                 onClick={() => setShowFilters(!showFilters)}
                 variant="outline"
@@ -227,7 +227,7 @@ export const CancelOrdersPage = () => {
             )}
 
             {/* Orders Table */}
-            <div className="px-3 sm:px-4 lg:px-6 py-4">
+            <div>
               {loading && ordersToCancel.length === 0 ? (
                 <div className="text-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>

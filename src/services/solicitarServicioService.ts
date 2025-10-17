@@ -13,7 +13,9 @@ import type {
   ListarPedidosCicloActualRequest,
   ListarPedidosCicloActualResponse,
   ModificarPedidoRequest,
-  ModificarPedidoResponse
+  ModificarPedidoResponse,
+  DisponibilidadTicketsRequest,
+  DisponibilidadTicketsResponse
 } from '../types/solicitarServicio';
 
 export class SolicitarServicioService {
@@ -198,6 +200,29 @@ export class SolicitarServicioService {
     } catch (error: any) {
       console.error('Error modifying pedido:', error);
       const errorMessage = error.response?.data?.mensaje || error.message || 'Error al modificar el pedido';
+      throw new Error(errorMessage);
+    }
+  }
+
+  static async checkDisponibilidadTickets(request: DisponibilidadTicketsRequest): Promise<DisponibilidadTicketsResponse> {
+    try {
+      const formData = new URLSearchParams();
+      formData.append('tk', request.tk);
+      formData.append('numero_documento', request.numero_documento);
+
+      console.log('Checking ticket availability with request:', request);
+
+      const response = await apiClient.post('/api/ws_eligetumenu/disponibilidad_servicio_tickets', formData, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
+      
+      console.log('Ticket availability response:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('Error checking ticket availability:', error);
+      const errorMessage = error.response?.data?.mensaje || error.message || 'Error al verificar disponibilidad de tickets';
       throw new Error(errorMessage);
     }
   }
