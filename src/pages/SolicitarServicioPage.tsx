@@ -80,17 +80,20 @@ export const SolicitarServicioPage = () => {
 
   // Preselect menu if this day has an existing order
   useEffect(() => {
-    if (diaSeleccionado && menus.length > 0) {
+    if (diaSeleccionado && menus.length > 0 && !declinarBeneficio) {
       const existingOrder = getExistingOrderForDay(diaSeleccionado.id);
       if (existingOrder) {
         const existingMenuId = parseInt(existingOrder.id_menu);
-        const menu = menus.find(m => m.id === existingMenuId);
-        if (menu && menuSeleccionado?.id !== menu.id) {
-          selectMenu(menu);
+        // Only preselect menu if it's not a "declined benefit" order (menu_id !== 0)
+        if (existingMenuId !== 0) {
+          const menu = menus.find(m => m.id === existingMenuId);
+          if (menu && menuSeleccionado?.id !== menu.id) {
+            selectMenu(menu);
+          }
         }
       }
     }
-  }, [diaSeleccionado, menus, getExistingOrderForDay, selectMenu, menuSeleccionado]);
+  }, [diaSeleccionado, menus, getExistingOrderForDay, selectMenu, menuSeleccionado, declinarBeneficio]);
 
   // Handle step navigation
   const handleNextStep = () => {

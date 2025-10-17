@@ -117,6 +117,13 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
         existingOrdersMap,
         diaSeleccionado: firstDay,
         currentDayIndex: 0,
+        currentStep: 0,
+        pedidoRealizado: false,
+        completedDays: [],
+        declinarBeneficio: false,
+        tipoServicioSeleccionado: null,
+        restauranteSeleccionado: null,
+        menuSeleccionado: null,
         loading: false 
       });
       
@@ -290,20 +297,44 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
     const existingOrder = state.getExistingOrderForDay(day.id);
     
     if (existingOrder) {
-      // Preload the restaurant
-      const restaurant = state.restaurantes.find(r => r.id === existingOrder.restaurante_id);
-      if (restaurant) {
-        set({ restauranteSeleccionado: restaurant });
-      }
+      // Check if the user declined the benefit for this day (menu_id = 0)
+      const menuId = parseInt(existingOrder.id_menu);
       
-      // Preload the service type
-      const serviceType = state.tiposServicio.find(t => t.id === existingOrder.tipo_servicio);
-      if (serviceType) {
-        set({ tipoServicioSeleccionado: serviceType });
+      if (menuId === 0) {
+        // User declined the benefit for this day
+        set({ 
+          declinarBeneficio: true,
+          restauranteSeleccionado: null,
+          menuSeleccionado: null,
+          tipoServicioSeleccionado: null
+        });
+      } else {
+        // User has a valid order, preload the data
+        set({ declinarBeneficio: false });
+        
+        // Preload the restaurant
+        const restaurant = state.restaurantes.find(r => r.id === existingOrder.restaurante_id);
+        if (restaurant) {
+          set({ restauranteSeleccionado: restaurant });
+        }
+        
+        // Preload the service type
+        const serviceType = state.tiposServicio.find(t => t.id === existingOrder.tipo_servicio);
+        if (serviceType) {
+          set({ tipoServicioSeleccionado: serviceType });
+        }
+        
+        // Note: menu will be preloaded after menus are fetched in the component
+        // We'll check if the current day has an existing order and preselect the menu there
       }
-      
-      // Note: menu will be preloaded after menus are fetched in the component
-      // We'll check if the current day has an existing order and preselect the menu there
+    } else {
+      // No existing order for this day, reset to default state
+      set({ 
+        declinarBeneficio: false,
+        restauranteSeleccionado: null,
+        menuSeleccionado: null,
+        tipoServicioSeleccionado: null
+      });
     }
   },
 
@@ -328,6 +359,7 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
     const nextIndex = state.currentDayIndex + 1;
     if (nextIndex < state.diasDisponibles.length) {
       const nextDay = state.diasDisponibles[nextIndex];
+      // First reset all selections to default
       set({
         currentDayIndex: nextIndex,
         diaSeleccionado: nextDay,
@@ -340,7 +372,8 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
         menus: []
       });
       
-      // Preload data for the next day if it has an existing order
+      // Then preload data for the next day if it has an existing order
+      // This will override the defaults if there's an existing order
       get().preloadDataForDay(nextDay);
     }
   },
