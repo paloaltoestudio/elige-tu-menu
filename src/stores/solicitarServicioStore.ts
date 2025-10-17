@@ -145,6 +145,18 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
       const sortedMergedDays = mergedDays.sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
       
       const firstDay = sortedMergedDays.length > 0 ? sortedMergedDays[0] : null;
+      const currentState = get();
+      
+      // Only reset selections if we're changing to a different day
+      const isDayChanging = currentState.diaSeleccionado?.id !== firstDay?.id;
+      
+      console.log('solicitarServicioStore - fetchDiasDisponibles:', {
+        currentDayId: currentState.diaSeleccionado?.id,
+        newDayId: firstDay?.id,
+        isDayChanging,
+        currentMenuSeleccionado: currentState.menuSeleccionado?.id,
+        willResetMenu: isDayChanging
+      });
       
       set({ 
         diasDisponibles: sortedMergedDays,
@@ -155,16 +167,31 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
         currentStep: 0,
         pedidoRealizado: false,
         completedDays: [],
-        declinarBeneficio: false,
-        tipoServicioSeleccionado: null,
-        restauranteSeleccionado: null,
-        menuSeleccionado: null,
+        // Only reset these if the day is actually changing
+        ...(isDayChanging ? {
+          declinarBeneficio: false,
+          tipoServicioSeleccionado: null,
+          restauranteSeleccionado: null,
+          menuSeleccionado: null,
+        } : {}),
         loading: false 
       });
       
       // Preload data for the first day if it has an existing order
       if (firstDay) {
-        get().preloadDataForDay(firstDay);
+        if (isDayChanging) {
+          // Day changed, do full preload
+          get().preloadDataForDay(firstDay);
+        } else {
+          // Same day, but ensure we have restaurant and service type set
+          const state = get();
+          const existingOrder = state.pedidosCicloActual.find(p => p.id_dia === firstDay.id);
+          if (existingOrder && !state.restauranteSeleccionado && !state.tipoServicioSeleccionado) {
+            // We have an order but selections are missing, reload them
+            console.log('solicitarServicioStore - Reloading restaurant/service for same day');
+            get().preloadDataForDay(firstDay);
+          }
+        }
       }
     } catch (error: any) {
       set({ 
@@ -234,6 +261,7 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
   },
 
   fetchMenus: async (tk: string, numeroDocumento: string, restauranteId: number, tipoServicio: number, diaId: number) => {
+    console.log('solicitarServicioStore - fetchMenus called for:', { restauranteId, tipoServicio, diaId });
     set({ loading: true, error: null });
     try {
       const response = await SolicitarServicioService.getMenus({ 
@@ -243,11 +271,14 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
         tipo_servicio: tipoServicio,
         dia_id: diaId
       });
+      console.log('solicitarServicioStore - fetchMenus received menus:', response.menus);
       set({ 
         menus: response.menus || [],
         loading: false 
       });
+      console.log('solicitarServicioStore - menus state updated, count:', response.menus?.length || 0);
     } catch (error: any) {
+      console.error('solicitarServicioStore - fetchMenus error:', error);
       set({ 
         menus: [],
         error: error.message,
@@ -386,7 +417,9 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
   },
 
   selectMenu: (menu: Menu) => {
+    console.log('solicitarServicioStore - selectMenu called with:', menu);
     set({ menuSeleccionado: menu });
+    console.log('solicitarServicioStore - menuSeleccionado set to:', menu.id);
   },
 
   toggleDeclinarBeneficio: () => {

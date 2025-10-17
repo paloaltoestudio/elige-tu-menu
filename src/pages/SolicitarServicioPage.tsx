@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../components/layout/Header';
 import { Sidebar } from '../components/layout/Sidebar';
@@ -11,6 +11,9 @@ export const SolicitarServicioPage = () => {
   const navigate = useNavigate();
   const { user, token } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // Track if we've already preselected the menu for the current day
+  const hasPreselectedMenuRef = useRef<number | null>(null);
   
   const {
     diasDisponibles,
@@ -49,6 +52,9 @@ export const SolicitarServicioPage = () => {
     reset
   } = useSolicitarServicioStore();
 
+  // Track if this is the initial mount (automatically reset to true on each mount)
+  const isInitialMount = useRef(true);
+
   // Check ticket availability first when component mounts
   useEffect(() => {
     if (user && token && (user.documento || user.sub)) {
@@ -73,9 +79,38 @@ export const SolicitarServicioPage = () => {
   // Track menu loading separately
   const [isLoadingMenus, setIsLoadingMenus] = useState(false);
 
+  // Force refetch menus on component mount if data is already available
+  // This handles the case when user navigates back to the page
+  useEffect(() => {
+    if (isInitialMount.current && user && token && (user.documento || user.sub) && 
+        diaSeleccionado && tipoServicioSeleccionado && restauranteSeleccionado) {
+      const documentNumber = user.documento || user.sub;
+      console.log('SolicitarServicioPage - Refetching menus on mount for editing');
+      setIsLoadingMenus(true);
+      fetchMenus(
+        token,
+        documentNumber,
+        restauranteSeleccionado.id,
+        tipoServicioSeleccionado.id,
+        diaSeleccionado.id
+      ).finally(() => {
+        setIsLoadingMenus(false);
+      });
+      isInitialMount.current = false;
+    }
+  }, [user, token, diaSeleccionado, tipoServicioSeleccionado, restauranteSeleccionado, fetchMenus]);
+
+  // Reset preselection flag on mount and when day, restaurant, or service type changes
+  // This ensures menu gets preselected when user comes back to the page
+  useEffect(() => {
+    console.log('SolicitarServicioPage - Resetting preselection flag');
+    hasPreselectedMenuRef.current = null;
+  }, [diaSeleccionado?.id, restauranteSeleccionado?.id, tipoServicioSeleccionado?.id]);
+
   // Fetch menus when restaurant and service type are selected
   useEffect(() => {
-    if (user && token && (user.documento || user.sub) && diaSeleccionado && tipoServicioSeleccionado && restauranteSeleccionado) {
+    if (!isInitialMount.current && user && token && (user.documento || user.sub) && 
+        diaSeleccionado && tipoServicioSeleccionado && restauranteSeleccionado) {
       const documentNumber = user.documento || user.sub;
       setIsLoadingMenus(true);
       fetchMenus(
@@ -90,22 +125,49 @@ export const SolicitarServicioPage = () => {
     }
   }, [user, token, diaSeleccionado, tipoServicioSeleccionado, restauranteSeleccionado, fetchMenus]);
 
-  // Preselect menu if this day has an existing order
+  // Preselect menu if this day has an existing order (only once per day)
   useEffect(() => {
     if (diaSeleccionado && menus.length > 0 && !declinarBeneficio) {
-      const existingOrder = getExistingOrderForDay(diaSeleccionado.id);
-      if (existingOrder) {
-        const existingMenuId = parseInt(existingOrder.id_menu);
-        // Only preselect menu if it's not a "declined benefit" order (menu_id !== 0)
-        if (existingMenuId !== 0) {
-          const menu = menus.find(m => m.id === existingMenuId);
-          if (menu && menuSeleccionado?.id !== menu.id) {
-            selectMenu(menu);
+      // Only preselect if we haven't already done it for this day
+      if (hasPreselectedMenuRef.current !== diaSeleccionado.id) {
+        const existingOrder = getExistingOrderForDay(diaSeleccionado.id);
+        console.log('SolicitarServicioPage - Preselection check:', {
+          dayId: diaSeleccionado.id,
+          existingOrder,
+          menusAvailable: menus.length,
+          currentSelection: menuSeleccionado?.id
+        });
+        
+        if (existingOrder) {
+          const existingMenuId = parseInt(existingOrder.id_menu);
+          // Only preselect menu if it's not a "declined benefit" order (menu_id !== 0)
+          if (existingMenuId !== 0) {
+            const menu = menus.find(m => m.id === existingMenuId);
+            console.log('SolicitarServicioPage - Found menu to preselect:', menu);
+            if (menu) {
+              // Only select if not already selected to avoid unnecessary updates
+              if (menuSeleccionado?.id !== menu.id) {
+                console.log('SolicitarServicioPage - Calling selectMenu for:', menu.id);
+                selectMenu(menu);
+                console.log('SolicitarServicioPage - Menu preselected:', menu.id);
+              } else {
+                console.log('SolicitarServicioPage - Menu already selected, skipping');
+              }
+              // Mark that we've preselected for this day
+              hasPreselectedMenuRef.current = diaSeleccionado.id;
+            } else {
+              console.warn('SolicitarServicioPage - Menu not found in available menus:', existingMenuId);
+            }
           }
+        } else {
+          // No existing order, mark as done so we don't keep checking
+          hasPreselectedMenuRef.current = diaSeleccionado.id;
         }
+      } else {
+        console.log('SolicitarServicioPage - Skipping preselection, already done for day:', diaSeleccionado.id);
       }
     }
-  }, [diaSeleccionado, menus, getExistingOrderForDay, selectMenu, menuSeleccionado, declinarBeneficio]);
+  }, [diaSeleccionado, menus, getExistingOrderForDay, selectMenu, declinarBeneficio, menuSeleccionado]);
 
   // Handle step navigation
   const handleNextStep = () => {
@@ -459,12 +521,15 @@ export const SolicitarServicioPage = () => {
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {menus.map((menu) => (
+                          {menus.map((menu) => {
+                            const isSelected = menuSeleccionado?.id === menu.id;
+                            console.log('Rendering menu:', menu.id, 'menuSeleccionado?.id:', menuSeleccionado?.id, 'isSelected:', isSelected);
+                            return (
                             <button
                               key={menu.id}
                               onClick={() => selectMenu(menu)}
                               className={`p-4 border rounded-lg text-left transition-colors ${
-                                menuSeleccionado?.id === menu.id
+                                isSelected
                                   ? 'border-blue-500 bg-blue-50 text-blue-900'
                                   : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                               }`}
@@ -499,7 +564,8 @@ export const SolicitarServicioPage = () => {
                                 </div>
                               </div>
                             </button>
-                          ))}
+                            );
+                          })}
                         </div>
                       )}
                     </div>
