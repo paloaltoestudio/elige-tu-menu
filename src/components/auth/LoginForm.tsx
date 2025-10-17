@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import type { LoginCredentials } from '../../types/auth';
+
+const REMEMBER_ME_KEY = 'rememberMe';
+const SAVED_USERNAME_KEY = 'savedUsername';
 
 export const LoginForm = () => {
   const [credentials, setCredentials] = useState<LoginCredentials>({
@@ -13,6 +16,20 @@ export const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   
   const { login, loading, error, clearError } = useAuthStore();
+
+  // Load saved credentials on mount
+  useEffect(() => {
+    const savedRememberMe = localStorage.getItem(REMEMBER_ME_KEY) === 'true';
+    const savedUsername = localStorage.getItem(SAVED_USERNAME_KEY);
+    
+    if (savedRememberMe && savedUsername) {
+      setRememberMe(true);
+      setCredentials(prev => ({
+        ...prev,
+        usuario: savedUsername
+      }));
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,6 +42,15 @@ export const LoginForm = () => {
     
     try {
       await login(credentials);
+      
+      // Save or clear credentials based on rememberMe checkbox
+      if (rememberMe) {
+        localStorage.setItem(REMEMBER_ME_KEY, 'true');
+        localStorage.setItem(SAVED_USERNAME_KEY, credentials.usuario);
+      } else {
+        localStorage.removeItem(REMEMBER_ME_KEY);
+        localStorage.removeItem(SAVED_USERNAME_KEY);
+      }
     } catch (error) {
       // Error is handled by the store
       console.error('Login error:', error);
@@ -43,7 +69,11 @@ export const LoginForm = () => {
 
   const handleCancel = () => {
     setCredentials({ usuario: '', password: '' });
+    setRememberMe(false);
     clearError();
+    // Clear saved credentials when user clicks cancel
+    localStorage.removeItem(REMEMBER_ME_KEY);
+    localStorage.removeItem(SAVED_USERNAME_KEY);
   };
 
   return (
