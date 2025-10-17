@@ -338,7 +338,27 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
         fecha_pedido: fechaPedido
       });
       
-      set({ loading: false });
+      // Update the local pedidosCicloActual array with the new values
+      const state = get();
+      const updatedPedidos = state.pedidosCicloActual.map(pedido => {
+        if (pedido.id === orderId) {
+          return {
+            ...pedido,
+            restaurante_id: restauranteId,
+            tipo_servicio: tipoServicio,
+            id_menu: menuId.toString(),
+            fecha_pedido: fechaPedido
+          };
+        }
+        return pedido;
+      });
+      
+      console.log('solicitarServicioStore - Updated pedidosCicloActual after modification');
+      
+      set({ 
+        pedidosCicloActual: updatedPedidos,
+        loading: false 
+      });
     } catch (error: any) {
       set({ 
         error: error.message,
