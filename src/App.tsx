@@ -8,6 +8,7 @@ import { MisSolicitudesPage } from './pages/MisSolicitudesPage';
 import { SolicitarServicioPage } from './pages/SolicitarServicioPage';
 import { ChangePasswordPage } from './pages/ChangePasswordPage';
 import { CancelOrdersPage } from './pages/CancelOrdersPage';
+import { TutorialPage } from './pages/TutorialPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 function App() {
@@ -78,6 +79,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <CancelOrdersPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/tutoriales" 
+                element={
+                  <ProtectedRoute>
+                    <TutorialPage />
                   </ProtectedRoute>
                 } 
               />

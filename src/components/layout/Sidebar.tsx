@@ -23,7 +23,7 @@ export const Sidebar = ({ className = '', isMobileMenuOpen, setIsMobileMenuOpen 
     {
       label: 'Videos y tutoriales',
       path: '/tutoriales',
-      active: false,
+      active: location.pathname === '/tutoriales',
     },
     {
       label: 'Mis solicitudes',
@@ -33,7 +33,7 @@ export const Sidebar = ({ className = '', isMobileMenuOpen, setIsMobileMenuOpen 
     {
       label: 'Cancelación de pedidos (Solo aparecerán los pedidos en las horas habilitadas)',
       path: '/cancelaciones',
-      active: false,
+      active: location.pathname === '/cancelaciones',
     },
     {
       label: 'Cambiar contraseña',
