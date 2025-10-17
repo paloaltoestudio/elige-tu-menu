@@ -225,22 +225,19 @@ export const SolicitarServicioPage = () => {
         <main className="flex-1 p-8">
         <div className="bg-white rounded-lg shadow p-6">
           {/* Header */}
-          <div className="mb-8">
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-2xl font-bold text-gray-900">
+          <div className="mb-3">
+            <div className="flex justify-between gap-2 mb-2">
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900">
                 Solicitar Servicio
               </h1>
               {diaSeleccionado && isEditingDay(diaSeleccionado.id) && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                  Editando pedido existente
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  Editando <span className="hidden md:inline ml-1"> pedido</span>
                 </span>
               )}
             </div>
             <p className="text-gray-600 mb-4">
-              Día {currentDayIndex + 1} de {diasDisponibles.length}: {diaSeleccionado?.nombre} - {diaSeleccionado?.fecha}
-            </p>
-            <p className="text-gray-600">
-              Paso {currentStep + 1} de 2: {getStepTitle()}
+             {diaSeleccionado?.nombre} - {diaSeleccionado?.fecha}
             </p>
             
             {/* Day Progress */}
@@ -331,7 +328,7 @@ export const SolicitarServicioPage = () => {
           {/* Step 0: Select Restaurant, Service Type and Menu */}
           {currentStep === 0 && (
             <div className="space-y-6">
-              <h2 className="text-lg font-semibold text-gray-900">Selecciona restaurante, tipo de servicio y menú</h2>
+              <h2 className="text-md font-semibold text-gray-900">Selecciona restaurante, tipo de servicio y menú</h2>
               
               {/* Selection Row */}
               <div className="bg-blue-50 rounded-lg p-4">

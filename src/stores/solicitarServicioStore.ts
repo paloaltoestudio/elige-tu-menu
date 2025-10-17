@@ -302,11 +302,15 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
       
       if (menuId === 0) {
         // User declined the benefit for this day
+        // Preselect the first available restaurant since restaurant_id = 1 might not be in the list
+        const firstRestaurant = state.restaurantes.length > 0 ? state.restaurantes[0] : null;
+        const firstServiceType = state.tiposServicio.length > 0 ? state.tiposServicio[0] : null;
+        
         set({ 
           declinarBeneficio: true,
-          restauranteSeleccionado: null,
+          restauranteSeleccionado: firstRestaurant,
           menuSeleccionado: null,
-          tipoServicioSeleccionado: null
+          tipoServicioSeleccionado: firstServiceType
         });
       } else {
         // User has a valid order, preload the data
