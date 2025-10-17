@@ -165,17 +165,6 @@ export const SolicitarServicioPage = () => {
     }
   };
 
-  const getStepTitle = () => {
-    switch (currentStep) {
-      case 0:
-        return 'Seleccionar Restaurante, Tipo de Servicio y Menú';
-      case 1:
-        return 'Confirmar Pedido';
-      default:
-        return '';
-    }
-  };
-
   // Show initial loading only if no data is available yet
   const isInitialLoading = loading && diasDisponibles.length === 0 && tiposServicio.length === 0 && restaurantes.length === 0;
   
