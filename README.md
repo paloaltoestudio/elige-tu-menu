@@ -1,16 +1,39 @@
 # Elige tu Menú - Universidad de Antioquia
 
-Una aplicación web para que estudiantes y empleados de la Universidad de Antioquia puedan seleccionar su menú semanal.
+Una aplicación web para que estudiantes y empleados de la Universidad de Antioquia puedan seleccionar su menú semanal del servicio de alimentación.
 
-## Características
+## Características Principales
 
+### Autenticación y Seguridad
 - ✅ Autenticación con JWT
-- ✅ Validación de roles (Estudiante/Docente)
+- ✅ Validación de roles (Estudiante/Docente/Usuario)
 - ✅ Gestión de sesiones con expiración automática
-- ✅ Interfaz responsive con Tailwind CSS
-- ✅ Estado global con Zustand
-- ✅ Validación de tokens JWT
+- ✅ Validación de tokens JWT en tiempo real
 - ✅ Protección de rutas
+- ✅ Recordar credenciales (solo usuario, no contraseña)
+- ✅ Cambio de contraseña desde la aplicación
+
+### Gestión de Pedidos
+- ✅ Solicitar servicio de alimentación por día
+- ✅ Crear y editar pedidos existentes desde la misma interfaz
+- ✅ Selección de restaurante, tipo de servicio y menú
+- ✅ Opción para declinar beneficio
+- ✅ Validación de disponibilidad de tickets/créditos
+- ✅ Visualización de pedidos del ciclo actual
+- ✅ Flujo multi-día con navegación secuencial
+
+### Administración de Solicitudes
+- ✅ Ver historial de solicitudes realizadas
+- ✅ Cancelación de pedidos en horarios habilitados
+- ✅ Filtrado por estado y fecha
+- ✅ Paginación de resultados
+
+### Experiencia de Usuario
+- ✅ Interfaz responsive con Tailwind CSS
+- ✅ Tutoriales en video según el rol del usuario
+- ✅ Indicadores visuales de edición/creación
+- ✅ Mensajes de confirmación y error claros
+- ✅ Estado global optimizado con Zustand
 
 ## Tecnologías
 
@@ -57,12 +80,30 @@ npm run dev
 src/
 ├── components/          # Componentes reutilizables
 │   ├── auth/           # Componentes de autenticación
-│   ├── layout/         # Componentes de layout
+│   │   ├── LoginForm.tsx
+│   │   └── ProtectedRoute.tsx
+│   ├── layout/         # Componentes de layout (Header, Sidebar, Footer)
 │   └── ui/             # Componentes de UI básicos
 ├── pages/              # Páginas principales
+│   ├── LoginPage.tsx
+│   ├── DashboardPage.tsx
+│   ├── SolicitarServicioPage.tsx    # Crear/Editar pedidos
+│   ├── MisSolicitudesPage.tsx       # Historial de solicitudes
+│   ├── CancelOrdersPage.tsx         # Cancelación de pedidos
+│   ├── ChangePasswordPage.tsx       # Cambio de contraseña
+│   └── TutorialPage.tsx             # Videos tutoriales
 ├── services/           # Servicios de API
+│   ├── authService.ts
+│   ├── solicitarServicioService.ts
+│   ├── solicitudesService.ts
+│   └── cancelOrdersService.ts
 ├── stores/             # Stores de Zustand
+│   ├── authStore.ts
+│   ├── solicitarServicioStore.ts
+│   ├── solicitudesStore.ts
+│   └── cancelOrdersStore.ts
 ├── types/              # Definiciones de TypeScript
+├── hooks/              # Custom hooks
 └── App.tsx             # Componente principal
 ```
 
@@ -70,36 +111,100 @@ src/
 
 ### Autenticación
 - `POST /api/ws_eligetumenu/acceder` - Login de usuario
+- `POST /api/ws_eligetumenu/cambiar_contrasena` - Cambiar contraseña
 
-**Request:**
-```json
-{
-  "usuario": "string",
-  "password": "string"
-}
-```
+### Gestión de Pedidos
+- `POST /api/ws_eligetumenu/disponibilidad_servicio_tickets` - Validar tickets activos
+- `POST /api/ws_eligetumenu/dias_disponibles_usuario` - Obtener días disponibles
+- `POST /api/ws_eligetumenu/listar_pedidos_ciclo_actual` - Listar pedidos del ciclo actual
+- `POST /api/ws_eligetumenu/tipos_servicio_x_usuario` - Obtener tipos de servicio
+- `POST /api/ws_eligetumenu/listar_restaurantes_usuario` - Listar restaurantes disponibles
+- `POST /api/ws_eligetumenu/listar_menus_usuario` - Listar menús disponibles
+- `POST /api/ws_eligetumenu/realizar_pedido` - Crear nuevo pedido
+- `POST /api/ws_eligetumenu/modificar_pedido` - Editar pedido existente
 
-**Response:**
-```json
-{
-  "mensaje": "Usuario identificado exitosamente",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
+### Consultas y Cancelaciones
+- `POST /api/ws_eligetumenu/listar_solicitudes_usuario` - Listar solicitudes del usuario
+- `POST /api/ws_eligetumenu/listar_pedidos_cancelables` - Listar pedidos cancelables
+- `POST /api/ws_eligetumenu/cancelar_pedido` - Cancelar un pedido
 
 ## Roles de Usuario
 
-- **ESTUDIANTE** - Acceso completo al sistema
-- **DOCENTE** - Acceso completo al sistema
-- **WEBUSER** - Acceso denegado
+- **ESTUDIANTE** - Estudiantes de la universidad
+  - Acceso completo al sistema
+  - Tutorial específico para estudiantes
+  
+- **DOCENTE** - Docentes y profesores
+  - Acceso completo al sistema
+  - Tutorial específico para docentes/empleados
+  
+- **WEBUSER** - Usuarios web/empleados
+  - Acceso completo al sistema
+  - Tutorial específico para usuarios
 
-## Funcionalidades de Autenticación
+## Páginas y Funcionalidades
 
-1. **Login**: Validación de credenciales
-2. **Token Management**: Almacenamiento y validación automática
-3. **Session Management**: Expiración automática y limpieza
-4. **Role Validation**: Verificación de roles permitidos
-5. **Auto Logout**: Redirección automática al login cuando el token expira
+### 1. Login
+- Validación de credenciales con JWT
+- Opción "Recordar datos en este equipo" (solo guarda usuario)
+- Validación de roles permitidos
+- Redirección automática según estado de autenticación
+
+### 2. Dashboard
+- Resumen de información del usuario
+- Acceso rápido a las funcionalidades principales
+
+### 3. Solicitar Servicio
+- Validación automática de tickets/créditos disponibles
+- Carga de pedidos existentes del ciclo actual
+- Creación de nuevos pedidos o edición de existentes
+- Flujo multi-día con navegación secuencial
+- Selección de restaurante, tipo de servicio y menú
+- Opción para declinar beneficio
+- Indicadores visuales de modo edición
+- Confirmación antes de realizar cambios
+
+### 4. Mis Solicitudes
+- Historial completo de solicitudes
+- Filtrado por estado y fecha
+- Paginación de resultados
+- Visualización de detalles del pedido
+
+### 5. Cancelación de Pedidos
+- Lista de pedidos cancelables según horarios habilitados
+- Cancelación con confirmación
+- Solo muestra pedidos en ventana de tiempo permitida
+
+### 6. Videos y Tutoriales
+- Tutoriales en video según el rol del usuario
+- Video específico para estudiantes
+- Video específico para docentes/empleados
+- Integración con YouTube
+
+### 7. Cambiar Contraseña
+- Formulario seguro para cambio de contraseña
+- Validación de contraseña actual
+- Confirmación de nueva contraseña
+
+## Características Técnicas
+
+### Gestión de Estado
+- Zustand para estado global optimizado
+- Stores separados por funcionalidad
+- Persistencia de sesión en localStorage
+
+### Validaciones
+- Validación de tokens JWT en tiempo real
+- Auto-logout al expirar la sesión
+- Validación de disponibilidad de tickets antes de solicitar servicio
+- Validación de campos en formularios
+
+### Experiencia de Usuario
+- Diseño responsive (mobile-first)
+- Feedback visual en todas las acciones
+- Mensajes de error y éxito claros
+- Loading states en operaciones asíncronas
+- Navegación intuitiva con sidebar
 
 ## Scripts Disponibles
 

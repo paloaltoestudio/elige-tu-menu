@@ -21,11 +21,6 @@ export const Sidebar = ({ className = '', isMobileMenuOpen, setIsMobileMenuOpen 
       active: location.pathname === '/solicitar-servicio',
     },
     {
-      label: 'Videos y tutoriales',
-      path: '/tutoriales',
-      active: location.pathname === '/tutoriales',
-    },
-    {
       label: 'Mis solicitudes',
       path: '/mis-solicitudes',
       active: location.pathname === '/mis-solicitudes',
@@ -39,6 +34,11 @@ export const Sidebar = ({ className = '', isMobileMenuOpen, setIsMobileMenuOpen 
       label: 'Cambiar contraseña',
       path: '/cambiar-contrasena',
       active: location.pathname === '/cambiar-contrasena',
+    },
+    {
+      label: 'Videos y tutoriales',
+      path: '/tutoriales',
+      active: location.pathname === '/tutoriales',
     },
   ];
 
