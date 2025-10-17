@@ -72,7 +72,7 @@ export class AuthService {
   }
 
   static isValidRole(role: string): boolean {
-    const validRoles = ['ESTUDIANTE', 'DOCENTE'];
+    const validRoles = ['ESTUDIANTE', 'USUARIO'];
     return validRoles.includes(role.toUpperCase());
   }
 

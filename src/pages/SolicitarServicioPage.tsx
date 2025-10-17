@@ -28,6 +28,8 @@ export const SolicitarServicioPage = () => {
     error,
     currentStep,
     pedidoRealizado,
+    isEditingDay,
+    getExistingOrderForDay,
     fetchDiasDisponibles,
     fetchTiposServicio,
     fetchRestaurantes,
@@ -75,6 +77,20 @@ export const SolicitarServicioPage = () => {
       });
     }
   }, [user, token, diaSeleccionado, tipoServicioSeleccionado, restauranteSeleccionado, fetchMenus]);
+
+  // Preselect menu if this day has an existing order
+  useEffect(() => {
+    if (diaSeleccionado && menus.length > 0) {
+      const existingOrder = getExistingOrderForDay(diaSeleccionado.id);
+      if (existingOrder) {
+        const existingMenuId = parseInt(existingOrder.id_menu);
+        const menu = menus.find(m => m.id === existingMenuId);
+        if (menu && menuSeleccionado?.id !== menu.id) {
+          selectMenu(menu);
+        }
+      }
+    }
+  }, [diaSeleccionado, menus, getExistingOrderForDay, selectMenu, menuSeleccionado]);
 
   // Handle step navigation
   const handleNextStep = () => {
@@ -207,9 +223,16 @@ export const SolicitarServicioPage = () => {
         <div className="bg-white rounded-lg shadow p-6">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Solicitar Servicio
-            </h1>
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-2xl font-bold text-gray-900">
+                Solicitar Servicio
+              </h1>
+              {diaSeleccionado && isEditingDay(diaSeleccionado.id) && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  Editando pedido existente
+                </span>
+              )}
+            </div>
             <p className="text-gray-600 mb-4">
               Día {currentDayIndex + 1} de {diasDisponibles.length}: {diaSeleccionado?.nombre} - {diaSeleccionado?.fecha}
             </p>
@@ -536,10 +559,12 @@ export const SolicitarServicioPage = () => {
                     </div>
                     <div className="ml-3">
                       <h3 className="text-sm font-medium text-green-800">
-                        ¡Pedido Realizado Exitosamente!
+                        {diaSeleccionado && isEditingDay(diaSeleccionado.id) ? '¡Pedido Actualizado Exitosamente!' : '¡Pedido Realizado Exitosamente!'}
                       </h3>
                       <div className="mt-2 text-sm text-green-700">
-                        Tu pedido ha sido registrado correctamente.
+                        {diaSeleccionado && isEditingDay(diaSeleccionado.id) 
+                          ? 'Tu pedido ha sido actualizado correctamente.' 
+                          : 'Tu pedido ha sido registrado correctamente.'}
                       </div>
                     </div>
                   </div>
@@ -547,7 +572,9 @@ export const SolicitarServicioPage = () => {
               ) : (
                 <div className="text-center">
                   <p className="text-gray-600 mb-4">
-                    ¿Estás seguro de que quieres realizar este pedido?
+                    {diaSeleccionado && isEditingDay(diaSeleccionado.id) 
+                      ? '¿Estás seguro de que quieres actualizar este pedido?' 
+                      : '¿Estás seguro de que quieres realizar este pedido?'}
                   </p>
                 </div>
               )}
@@ -576,7 +603,7 @@ export const SolicitarServicioPage = () => {
                   disabled={loading}
                   className="bg-green-600 hover:bg-green-700"
                 >
-                  {loading ? 'Procesando...' : 'Confirmar Pedido'}
+                  {loading ? 'Procesando...' : (diaSeleccionado && isEditingDay(diaSeleccionado.id) ? 'Confirmar Cambios' : 'Confirmar Pedido')}
                 </Button>
               ) : (
                 <Button

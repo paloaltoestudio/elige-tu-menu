@@ -9,7 +9,11 @@ import type {
   MenusRequest,
   MenusResponse,
   RealizarPedidoRequest,
-  RealizarPedidoResponse
+  RealizarPedidoResponse,
+  ListarPedidosCicloActualRequest,
+  ListarPedidosCicloActualResponse,
+  ModificarPedidoRequest,
+  ModificarPedidoResponse
 } from '../types/solicitarServicio';
 
 export class SolicitarServicioService {
@@ -143,6 +147,57 @@ export class SolicitarServicioService {
     } catch (error: any) {
       console.error('Error creating pedido:', error);
       const errorMessage = error.response?.data?.mensaje || error.message || 'Error al realizar el pedido';
+      throw new Error(errorMessage);
+    }
+  }
+
+  static async listarPedidosCicloActual(request: ListarPedidosCicloActualRequest): Promise<ListarPedidosCicloActualResponse> {
+    try {
+      const formData = new URLSearchParams();
+      formData.append('tk', request.tk);
+      formData.append('numero_documento', request.numero_documento);
+
+      console.log('Fetching current cycle orders with request:', request);
+
+      const response = await apiClient.post('/api/ws_eligetumenu/listar_pedidos_ciclo_actual', formData, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
+      
+      console.log('Current cycle orders response:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('Error fetching current cycle orders:', error);
+      const errorMessage = error.response?.data?.mensaje || error.message || 'Error al obtener pedidos del ciclo actual';
+      throw new Error(errorMessage);
+    }
+  }
+
+  static async modificarPedido(request: ModificarPedidoRequest): Promise<ModificarPedidoResponse> {
+    try {
+      const formData = new URLSearchParams();
+      formData.append('tk', request.tk);
+      formData.append('numero_documento', request.numero_documento);
+      formData.append('registro', request.registro.toString());
+      formData.append('restaurante_id', request.restaurante_id.toString());
+      formData.append('tipo_servicio', request.tipo_servicio.toString());
+      formData.append('menu_id', request.menu_id.toString());
+      formData.append('fecha_pedido', request.fecha_pedido);
+
+      console.log('Modifying pedido with request:', request);
+
+      const response = await apiClient.post('/api/ws_eligetumenu/modificar_pedido', formData, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
+      
+      console.log('Modificar pedido response:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('Error modifying pedido:', error);
+      const errorMessage = error.response?.data?.mensaje || error.message || 'Error al modificar el pedido';
       throw new Error(errorMessage);
     }
   }
