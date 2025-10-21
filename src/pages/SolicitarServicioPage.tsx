@@ -6,6 +6,7 @@ import { Footer } from '../components/layout/Footer';
 import { Button } from '../components/ui/Button';
 import { useAuthStore } from '../stores/authStore';
 import { useSolicitarServicioStore } from '../stores/solicitarServicioStore';
+import { formatDateToSpanish } from '../utils/dateFormat';
 
 export const SolicitarServicioPage = () => {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ export const SolicitarServicioPage = () => {
     hasActiveTickets,
     isEditingDay,
     getExistingOrderForDay,
+    preloadDataForDay,
     checkTicketAvailability,
     fetchDiasDisponibles,
     fetchTiposServicio,
@@ -54,6 +56,24 @@ export const SolicitarServicioPage = () => {
   // Track if this is the initial mount (automatically reset to true on each mount)
   const isInitialMount = useRef(true);
 
+  // Track menu loading separately
+  const [isLoadingMenus, setIsLoadingMenus] = useState(false);
+
+  // Track the last fetch key to prevent duplicate fetches
+  const lastFetchKey = useRef<string | null>(null);
+
+  // Cleanup when component unmounts (navigating away)
+  useEffect(() => {
+    return () => {
+      // Reset all state and refs when leaving the page for a clean UI on return
+      reset();
+      hasPreselectedMenuRef.current = null;
+      lastFetchKey.current = null;
+      isInitialMount.current = true;
+      setIsLoadingMenus(false);
+    };
+  }, [reset]);
+
   // Check ticket availability first when component mounts AND when day changes
   useEffect(() => {
     if (user && token && (user.documento || user.sub)) {
@@ -63,20 +83,29 @@ export const SolicitarServicioPage = () => {
   }, [user, token, diaSeleccionado?.id, checkTicketAvailability]);
 
   // Initialize data when component mounts (regardless of tickets)
+  // Fetch all data and then preload the first day's data
   useEffect(() => {
-    if (user && token && (user.documento || user.sub)) {
-      const documentNumber = user.documento || user.sub;
-      fetchDiasDisponibles(token, documentNumber);
-      fetchTiposServicio(token, documentNumber);
-      fetchRestaurantes(token, documentNumber);
-    }
-  }, [user, token, fetchDiasDisponibles, fetchTiposServicio, fetchRestaurantes]);
-
-  // Track menu loading separately
-  const [isLoadingMenus, setIsLoadingMenus] = useState(false);
-
-  // Track the last fetch key to prevent duplicate fetches
-  const lastFetchKey = useRef<string | null>(null);
+    const initializeData = async () => {
+      if (user && token && (user.documento || user.sub)) {
+        const documentNumber = user.documento || user.sub;
+        
+        // Fetch all data in parallel
+        await Promise.all([
+          fetchDiasDisponibles(token, documentNumber),
+          fetchTiposServicio(token, documentNumber),
+          fetchRestaurantes(token, documentNumber)
+        ]);
+        
+        // After all data is loaded, preload the first day if it exists
+        const state = useSolicitarServicioStore.getState();
+        if (state.diaSeleccionado) {
+          preloadDataForDay(state.diaSeleccionado);
+        }
+      }
+    };
+    
+    initializeData();
+  }, [user, token, fetchDiasDisponibles, fetchTiposServicio, fetchRestaurantes, preloadDataForDay]);
 
   // Reset preselection flag on mount and when day, restaurant, or service type changes
   // This ensures menu gets preselected when user comes back to the page
@@ -91,11 +120,12 @@ export const SolicitarServicioPage = () => {
         diaSeleccionado && tipoServicioSeleccionado && restauranteSeleccionado) {
       const documentNumber = user.documento || user.sub;
       
-      // Check if user has existing order for this day
-      const hasExistingOrder = diaSeleccionado && isEditingDay(diaSeleccionado.id);
+      // Check if user has existing order for this day with a menu (not declined)
+      const existingOrder = diaSeleccionado ? getExistingOrderForDay(diaSeleccionado.id) : null;
+      const hasExistingOrderWithMenu = existingOrder && parseInt(existingOrder.id_menu) !== 0;
       
-      // Only fetch menus if user has tickets OR has an existing order
-      if (hasActiveTickets || hasExistingOrder) {
+      // Only fetch menus if user has tickets OR has an existing order with a menu
+      if (hasActiveTickets || hasExistingOrderWithMenu) {
         // Create a unique key for this fetch to prevent duplicates
         const fetchKey = `${restauranteSeleccionado.id}-${tipoServicioSeleccionado.id}-${diaSeleccionado.id}`;
         
@@ -117,7 +147,7 @@ export const SolicitarServicioPage = () => {
         }
       }
     }
-  }, [user, token, diaSeleccionado, tipoServicioSeleccionado, restauranteSeleccionado, hasActiveTickets, isEditingDay, fetchMenus]);
+  }, [user, token, diaSeleccionado, tipoServicioSeleccionado, restauranteSeleccionado, hasActiveTickets, getExistingOrderForDay, fetchMenus]);
 
   // Preselect menu if this day has an existing order (only once per day)
   useEffect(() => {
@@ -282,7 +312,7 @@ export const SolicitarServicioPage = () => {
               )}
             </div>
             <p className="text-gray-600 mb-4">
-             {diaSeleccionado?.nombre} - {diaSeleccionado?.fecha}
+             {diaSeleccionado?.nombre} - {diaSeleccionado?.fecha ? formatDateToSpanish(diaSeleccionado.fecha) : ''}
             </p>
             
             {/* Day Progress */}
@@ -375,8 +405,14 @@ export const SolicitarServicioPage = () => {
             <div className="space-y-6">
               <h2 className="text-md font-semibold text-gray-900">Selecciona restaurante, tipo de servicio y menú</h2>
               
-              {/* No Tickets Warning - Only show for NEW orders (not editing) */}
-              {!hasActiveTickets && diaSeleccionado && !isEditingDay(diaSeleccionado.id) && (
+              {/* No Tickets Warning - Show for NEW orders OR editing orders with declined benefit (menu_id = 0) */}
+              {!hasActiveTickets && diaSeleccionado && (
+                !isEditingDay(diaSeleccionado.id) || 
+                (() => {
+                  const existingOrder = getExistingOrderForDay(diaSeleccionado.id);
+                  return existingOrder && parseInt(existingOrder.id_menu) === 0;
+                })()
+              ) && (
                 <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
                   <div className="flex items-start">
                     <div className="flex-shrink-0">
@@ -468,8 +504,14 @@ export const SolicitarServicioPage = () => {
                     </label>
                   </div>
 
-                  {/* Menus - Only show if user has tickets OR is editing existing order */}
-                  {!declinarBeneficio && (hasActiveTickets || (diaSeleccionado && isEditingDay(diaSeleccionado.id))) && (
+                  {/* Menus - Only show if user has tickets OR is editing existing order with a menu (not declined) */}
+                  {!declinarBeneficio && (
+                    hasActiveTickets || 
+                    (diaSeleccionado && isEditingDay(diaSeleccionado.id) && (() => {
+                      const existingOrder = getExistingOrderForDay(diaSeleccionado.id);
+                      return existingOrder && parseInt(existingOrder.id_menu) !== 0;
+                    })())
+                  ) && (
                     <div>
                       <h4 className="text-sm font-medium text-gray-700 mb-3">Menús Disponibles</h4>
                       {isLoadingMenus ? (
@@ -503,32 +545,16 @@ export const SolicitarServicioPage = () => {
                             >
                               <div className="font-medium mb-3">{menu.nombre}</div>
                               <div className="w-full h-32 rounded overflow-hidden bg-gray-100">
-                                {menu.foto ? (
-                                  <img
-                                    src={menu.foto}
-                                    alt={menu.nombre}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                      // If image fails to load, show placeholder
-                                      const target = e.target as HTMLImageElement;
-                                      target.style.display = 'none';
-                                      const placeholder = target.nextElementSibling as HTMLElement;
-                                      if (placeholder) placeholder.style.display = 'flex';
-                                    }}
-                                  />
-                                ) : null}
-                                <div 
-                                  className={`w-full h-full flex items-center justify-center text-gray-400 ${
-                                    menu.foto ? 'hidden' : 'flex'
-                                  }`}
-                                >
-                                  <div className="text-center">
-                                    <svg className="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
-                                      <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                                    </svg>
-                                    <p className="text-sm">Sin imagen</p>
-                                  </div>
-                                </div>
+                                <img
+                                  src={menu.foto || '/lunch_placeholder.jpg'}
+                                  alt={menu.nombre}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    // If image fails to load, use placeholder
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = '/lunch_placeholder.jpg';
+                                  }}
+                                />
                               </div>
                             </button>
                             );
@@ -554,7 +580,7 @@ export const SolicitarServicioPage = () => {
                 <div className="space-y-2 mb-4">
                   <div className="flex flex-col sm:flex-row justify-between">
                     <span className="text-gray-600">Día:</span>
-                    <span className="font-medium">{diaSeleccionado?.nombre} - {diaSeleccionado?.fecha}</span>
+                    <span className="font-medium">{diaSeleccionado?.nombre} - {diaSeleccionado?.fecha ? formatDateToSpanish(diaSeleccionado.fecha) : ''}</span>
                   </div>
                   <div className="flex flex-col sm:flex-row justify-between">
                     <span className="text-gray-600">Restaurante:</span>

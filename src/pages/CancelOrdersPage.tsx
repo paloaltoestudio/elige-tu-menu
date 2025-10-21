@@ -8,6 +8,7 @@ import { StatusLabel } from '../components/ui/StatusLabel';
 import { FilterForm } from '../components/ui/FilterForm';
 import { useAuthStore } from '../stores/authStore';
 import { useCancelOrdersStore } from '../stores/cancelOrdersStore';
+import { formatDateToSpanish } from '../utils/dateFormat';
 
 export const CancelOrdersPage = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -52,7 +53,7 @@ export const CancelOrdersPage = () => {
         title: '¿Cancelar pedido?',
         html: `
           <div class="text-left">
-            <p class="mb-3"><strong>Fecha:</strong> ${formatDate(order.fecha_pedido)}</p>
+            <p class="mb-3"><strong>Fecha:</strong> ${formatDateToSpanish(order.fecha_pedido)}</p>
             <p class="mb-3"><strong>Menú:</strong> ${order.nombre_menu}</p>
             <p class="text-sm text-gray-600">¿Estás seguro de que deseas cancelar este pedido?</p>
           </div>
@@ -79,12 +80,6 @@ export const CancelOrdersPage = () => {
         });
       }
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    // Convert from YYYY-MM-DD to DD-MM-YYYY format
-    const [year, month, day] = dateString.split('-');
-    return `${day}-${month}-${year}`;
   };
 
   const handleFilterChange = (newFilters: typeof filters) => {
@@ -258,7 +253,7 @@ export const CancelOrdersPage = () => {
                               {order.nombre_menu}
                             </h3>
                             <p className="text-xs text-gray-500">
-                              Fecha: {formatDate(order.fecha_pedido)}
+                              Fecha: {formatDateToSpanish(order.fecha_pedido)}
                             </p>
                           </div>
                           <StatusLabel status="SOLICITADO" />
@@ -313,7 +308,7 @@ export const CancelOrdersPage = () => {
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {formatDate(order.fecha_pedido)}
+                              {formatDateToSpanish(order.fecha_pedido)}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                               <StatusLabel status="SOLICITADO" />

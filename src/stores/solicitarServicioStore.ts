@@ -169,21 +169,7 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
         loading: false 
       });
       
-      // Preload data for the first day if it has an existing order
-      if (firstDay) {
-        if (isDayChanging) {
-          // Day changed, do full preload
-          get().preloadDataForDay(firstDay);
-        } else {
-          // Same day, but ensure we have restaurant and service type set
-          const state = get();
-          const existingOrder = state.pedidosCicloActual.find(p => p.id_dia === firstDay.id);
-          if (existingOrder && !state.restauranteSeleccionado && !state.tipoServicioSeleccionado) {
-            // We have an order but selections are missing, reload them
-            get().preloadDataForDay(firstDay);
-          }
-        }
-      }
+      // Note: preloadDataForDay will be called from the component after all data is fetched
     } catch (error: any) {
       set({ 
         error: error.message,

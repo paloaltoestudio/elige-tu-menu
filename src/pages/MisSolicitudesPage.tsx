@@ -6,6 +6,7 @@ import { Pagination } from '../components/ui/Pagination';
 import { FilterForm } from '../components/ui/FilterForm';
 import { StatusLabel } from '../components/ui/StatusLabel';
 import { useSolicitudesStore } from '../stores/solicitudesStore';
+import { formatDateToSpanish } from '../utils/dateFormat';
 
 export const MisSolicitudesPage = () => {
   const [showFilters, setShowFilters] = useState(false);
@@ -150,7 +151,7 @@ export const MisSolicitudesPage = () => {
                             </div>
                             <div className="text-xs text-gray-600">
                               <p><span className="font-medium">Tipo:</span> {solicitud.tipo_servicio}</p>
-                              <p className="mt-1"><span className="font-medium">Fecha:</span> {solicitud.fecha_pedido}</p>
+                              <p className="mt-1"><span className="font-medium">Fecha:</span> {formatDateToSpanish(solicitud.fecha_pedido)}</p>
                             </div>
                           </div>
                         </div>
@@ -201,7 +202,7 @@ export const MisSolicitudesPage = () => {
                               {solicitud.tipo_servicio}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {solicitud.fecha_pedido}
+                              {formatDateToSpanish(solicitud.fecha_pedido)}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                               <StatusLabel status={solicitud.estado as any} />
