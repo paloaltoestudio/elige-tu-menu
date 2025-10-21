@@ -51,6 +51,7 @@ const initialState: SolicitarServicioState = {
   existingOrdersMap: {},
   hasActiveTickets: true,
   ticketsErrorMessage: null,
+  serviceAvailabilityDate: null,
   diaSeleccionado: null,
   tipoServicioSeleccionado: null,
   restauranteSeleccionado: null,
@@ -79,13 +80,19 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
         set({ 
           hasActiveTickets: false,
           ticketsErrorMessage: ticketData.message || 'No tienes tiquetes activos para solicitar el servicio',
+          serviceAvailabilityDate: null,
           loading: false 
         });
       } else {
-        // User has active tickets
+        // User has active tickets - extract the service end date
+        // Get the first service's fecha_ffin (all services should have the same end date)
+        const firstServiceKey = Object.keys(ticketData)[0];
+        const serviceEndDate = firstServiceKey ? ticketData[firstServiceKey].fecha_ffin : null;
+        
         set({ 
           hasActiveTickets: true,
           ticketsErrorMessage: null,
+          serviceAvailabilityDate: serviceEndDate,
           loading: false 
         });
       }
@@ -93,6 +100,7 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
       set({ 
         hasActiveTickets: false,
         ticketsErrorMessage: 'Error al verificar disponibilidad de tickets',
+        serviceAvailabilityDate: null,
         error: error.message,
         loading: false 
       });

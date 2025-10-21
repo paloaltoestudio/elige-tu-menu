@@ -33,6 +33,7 @@ export const SolicitarServicioPage = () => {
     currentStep,
     pedidoRealizado,
     hasActiveTickets,
+    serviceAvailabilityDate,
     isEditingDay,
     getExistingOrderForDay,
     preloadDataForDay,
@@ -58,6 +59,9 @@ export const SolicitarServicioPage = () => {
 
   // Track menu loading separately
   const [isLoadingMenus, setIsLoadingMenus] = useState(false);
+
+  // Track if service availability banner is dismissed
+  const [isServiceBannerDismissed, setIsServiceBannerDismissed] = useState(false);
 
   // Track the last fetch key to prevent duplicate fetches
   const lastFetchKey = useRef<string | null>(null);
@@ -267,6 +271,37 @@ export const SolicitarServicioPage = () => {
           
           <main className="flex-1 p-8">
         <div className="bg-white rounded-lg shadow p-6">
+
+        {/* Service Availability Banner */}
+        {serviceAvailabilityDate && !isServiceBannerDismissed && (
+            <div className="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center">
+                    <svg className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="ml-3 flex-1">
+                  <p className="text-sm text-gray-900 font-medium">
+                    Servicio disponible hasta {formatDateToSpanish(serviceAvailabilityDate)}
+                  </p>
+                </div>
+                <div className="ml-auto pl-3">
+                  <button
+                    onClick={() => setIsServiceBannerDismissed(true)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          
           {/* Header */}
           <div className="mb-3">
             <div className="flex justify-between gap-2 mb-2">
@@ -336,7 +371,7 @@ export const SolicitarServicioPage = () => {
               </div>
             </div>
           </div>
-
+          
           {/* Error message */}
           {error && (
             <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">

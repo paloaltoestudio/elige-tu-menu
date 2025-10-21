@@ -171,6 +171,7 @@ export interface SolicitarServicioState {
   // Ticket availability
   hasActiveTickets: boolean;
   ticketsErrorMessage: string | null;
+  serviceAvailabilityDate: string | null; // Store the service end date
   
   // Current selections
   diaSeleccionado: DiaDisponible | null;
