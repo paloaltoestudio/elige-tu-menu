@@ -75,9 +75,9 @@ export const Header = ({ onMenuClick }: HeaderProps = {}) => {
                       {/* User Icon */}
                       <i className="fa-solid fa-user text-blue-600"></i>
                       
-                      {/* Username */}
+                      {/* Full Name */}
                       <span className="text-blue-600 hidden sm:block font-medium text-sm">
-                        {user.usuario || user.sub}
+                        {user.nombres || user.usuario || user.sub}
                       </span>
                       
                       {/* Dropdown Arrow */}
@@ -88,7 +88,7 @@ export const Header = ({ onMenuClick }: HeaderProps = {}) => {
                     {showUserDropdown && (
                       <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
                         <span className="p-4 pb-2 border-b border-gray-200 text-blue-600 sm:hidden font-medium text-sm text-center block">
-                          {user.usuario || user.sub}
+                          {user.nombres || user.usuario || user.sub}
                         </span>
                         <div className="py-1">
                           <button

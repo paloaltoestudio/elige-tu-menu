@@ -2,6 +2,7 @@ export interface AuthResponse {
   mensaje: string;
   token: string;
   documento?: string;
+  nombres?: string;
 }
 
 export interface User {
@@ -9,6 +10,7 @@ export interface User {
   rol: string;
   usuario?: string; // Add username field
   documento?: string; // Add document field
+  nombres?: string; // Add full name field
   iat: number;
   exp: number;
 }

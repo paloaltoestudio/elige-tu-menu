@@ -38,14 +38,15 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         throw new Error('Rol de usuario no autorizado');
       }
       
-      // Set session with username and documento
-      AuthService.setSession(response.token, credentials.usuario, response.documento);
+      // Set session with username, documento, and nombres
+      AuthService.setSession(response.token, credentials.usuario, response.documento, response.nombres);
       
-      // Update user object with username and documento
+      // Update user object with username, documento, and nombres
       const userWithData = { 
         ...user, 
         usuario: credentials.usuario,
-        documento: response.documento 
+        documento: response.documento,
+        nombres: response.nombres
       };
       
       set({

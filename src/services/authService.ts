@@ -76,15 +76,18 @@ export class AuthService {
     return validRoles.includes(role.toUpperCase());
   }
 
-  static setSession(token: string, username?: string, documento?: string): void {
+  static setSession(token: string, username?: string, documento?: string, nombres?: string): void {
     localStorage.setItem('token', token);
     const user = this.decodeToken(token);
-    // Add username and documento to user object if provided
+    // Add username, documento, and nombres to user object if provided
     if (username) {
       user.usuario = username;
     }
     if (documento) {
       user.documento = documento;
+    }
+    if (nombres) {
+      user.nombres = nombres;
     }
     localStorage.setItem('user', JSON.stringify(user));
   }
