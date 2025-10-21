@@ -150,14 +150,6 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
       // Only reset selections if we're changing to a different day
       const isDayChanging = currentState.diaSeleccionado?.id !== firstDay?.id;
       
-      console.log('solicitarServicioStore - fetchDiasDisponibles:', {
-        currentDayId: currentState.diaSeleccionado?.id,
-        newDayId: firstDay?.id,
-        isDayChanging,
-        currentMenuSeleccionado: currentState.menuSeleccionado?.id,
-        willResetMenu: isDayChanging
-      });
-      
       set({ 
         diasDisponibles: sortedMergedDays,
         pedidosCicloActual: pedidos,
@@ -188,7 +180,6 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
           const existingOrder = state.pedidosCicloActual.find(p => p.id_dia === firstDay.id);
           if (existingOrder && !state.restauranteSeleccionado && !state.tipoServicioSeleccionado) {
             // We have an order but selections are missing, reload them
-            console.log('solicitarServicioStore - Reloading restaurant/service for same day');
             get().preloadDataForDay(firstDay);
           }
         }
@@ -261,7 +252,6 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
   },
 
   fetchMenus: async (tk: string, numeroDocumento: string, restauranteId: number, tipoServicio: number, diaId: number) => {
-    console.log('solicitarServicioStore - fetchMenus called for:', { restauranteId, tipoServicio, diaId });
     set({ loading: true, error: null });
     try {
       const response = await SolicitarServicioService.getMenus({ 
@@ -271,14 +261,11 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
         tipo_servicio: tipoServicio,
         dia_id: diaId
       });
-      console.log('solicitarServicioStore - fetchMenus received menus:', response.menus);
       set({ 
         menus: response.menus || [],
         loading: false 
       });
-      console.log('solicitarServicioStore - menus state updated, count:', response.menus?.length || 0);
     } catch (error: any) {
-      console.error('solicitarServicioStore - fetchMenus error:', error);
       set({ 
         menus: [],
         error: error.message,
@@ -318,8 +305,10 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
         loading: false 
       });
     } catch (error: any) {
+      // Extract API error message if available, otherwise use default message
+      const errorMessage = error.response?.data?.message || error.message || 'Ha ocurrido un error al realizar el pedido';
       set({ 
-        error: error.message,
+        error: errorMessage,
         loading: false 
       });
     }
@@ -353,15 +342,15 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
         return pedido;
       });
       
-      console.log('solicitarServicioStore - Updated pedidosCicloActual after modification');
-      
       set({ 
         pedidosCicloActual: updatedPedidos,
         loading: false 
       });
     } catch (error: any) {
+      // Extract API error message if available, otherwise use default message
+      const errorMessage = error.response?.data?.message || error.message || 'Ha ocurrido un error al modificar el pedido';
       set({ 
-        error: error.message,
+        error: errorMessage,
         loading: false 
       });
     }
@@ -418,12 +407,14 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
         // We'll check if the current day has an existing order and preselect the menu there
       }
     } else {
-      // No existing order for this day, reset to default state
+      // No existing order for this day, reset to default state and preselect "Almuerzo"
+      const almuerzo = state.tiposServicio.find(t => t.nombre.toLowerCase() === 'almuerzo');
+      
       set({ 
         declinarBeneficio: false,
         restauranteSeleccionado: null,
         menuSeleccionado: null,
-        tipoServicioSeleccionado: null
+        tipoServicioSeleccionado: almuerzo || null
       });
     }
   },
@@ -437,16 +428,14 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
   },
 
   selectMenu: (menu: Menu) => {
-    console.log('solicitarServicioStore - selectMenu called with:', menu);
     set({ menuSeleccionado: menu });
-    console.log('solicitarServicioStore - menuSeleccionado set to:', menu.id);
   },
 
   toggleDeclinarBeneficio: () => {
     set((state) => ({ declinarBeneficio: !state.declinarBeneficio }));
   },
 
-  nextDay: () => {
+  nextDay: async () => {
     const state = get();
     const nextIndex = state.currentDayIndex + 1;
     if (nextIndex < state.diasDisponibles.length) {

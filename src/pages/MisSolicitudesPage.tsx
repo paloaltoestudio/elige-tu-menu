@@ -74,13 +74,14 @@ export const MisSolicitudesPage = () => {
     <div className="min-h-screen bg-gray-50">
       <Header onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
       
-      <div className="flex">
-        <Sidebar 
-          isMobileMenuOpen={isMobileMenuOpen}
-          setIsMobileMenuOpen={setIsMobileMenuOpen}
-        />
-        
-        <main className="flex-1 p-8">
+      <div className="max-w-[1600px] mx-auto">
+        <div className="flex">
+          <Sidebar 
+            isMobileMenuOpen={isMobileMenuOpen}
+            setIsMobileMenuOpen={setIsMobileMenuOpen}
+          />
+          
+          <main className="flex-1 p-8">
           <div className="bg-white rounded-lg shadow p-6">
             {/* Page Title */}
             <div className="border-b border-gray-200 pb-3">
@@ -234,6 +235,7 @@ export const MisSolicitudesPage = () => {
             )}
           </div>
         </main>
+        </div>
       </div>
       
       <Footer />

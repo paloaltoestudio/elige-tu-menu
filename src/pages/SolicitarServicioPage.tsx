@@ -32,7 +32,6 @@ export const SolicitarServicioPage = () => {
     currentStep,
     pedidoRealizado,
     hasActiveTickets,
-    ticketsErrorMessage,
     isEditingDay,
     getExistingOrderForDay,
     checkTicketAvailability,
@@ -55,26 +54,23 @@ export const SolicitarServicioPage = () => {
   // Track if this is the initial mount (automatically reset to true on each mount)
   const isInitialMount = useRef(true);
 
-  // Check ticket availability first when component mounts
+  // Check ticket availability first when component mounts AND when day changes
   useEffect(() => {
     if (user && token && (user.documento || user.sub)) {
       const documentNumber = user.documento || user.sub;
-      console.log('SolicitarServicioPage - Checking ticket availability for:', documentNumber);
       checkTicketAvailability(token, documentNumber);
     }
-  }, [user, token, checkTicketAvailability]);
+  }, [user, token, diaSeleccionado?.id, checkTicketAvailability]);
 
-  // Initialize data when component mounts (only if user has active tickets)
+  // Initialize data when component mounts (regardless of tickets)
   useEffect(() => {
-    if (user && token && (user.documento || user.sub) && hasActiveTickets) {
+    if (user && token && (user.documento || user.sub)) {
       const documentNumber = user.documento || user.sub;
-      console.log('SolicitarServicioPage - Using document number:', documentNumber);
-      console.log('SolicitarServicioPage - User object:', user);
       fetchDiasDisponibles(token, documentNumber);
       fetchTiposServicio(token, documentNumber);
       fetchRestaurantes(token, documentNumber);
     }
-  }, [user, token, hasActiveTickets, fetchDiasDisponibles, fetchTiposServicio, fetchRestaurantes]);
+  }, [user, token, fetchDiasDisponibles, fetchTiposServicio, fetchRestaurantes]);
 
   // Track menu loading separately
   const [isLoadingMenus, setIsLoadingMenus] = useState(false);
@@ -85,40 +81,43 @@ export const SolicitarServicioPage = () => {
   // Reset preselection flag on mount and when day, restaurant, or service type changes
   // This ensures menu gets preselected when user comes back to the page
   useEffect(() => {
-    console.log('SolicitarServicioPage - Resetting preselection flag');
     hasPreselectedMenuRef.current = null;
   }, [diaSeleccionado?.id, restauranteSeleccionado?.id, tipoServicioSeleccionado?.id]);
 
   // Fetch menus when restaurant and service type are selected
+  // Only fetch if user has tickets OR has an existing order for this day
   useEffect(() => {
     if (user && token && (user.documento || user.sub) && 
         diaSeleccionado && tipoServicioSeleccionado && restauranteSeleccionado) {
       const documentNumber = user.documento || user.sub;
       
-      // Create a unique key for this fetch to prevent duplicates
-      const fetchKey = `${restauranteSeleccionado.id}-${tipoServicioSeleccionado.id}-${diaSeleccionado.id}`;
+      // Check if user has existing order for this day
+      const hasExistingOrder = diaSeleccionado && isEditingDay(diaSeleccionado.id);
       
-      // Only fetch if this is a different combination or first mount
-      if (lastFetchKey.current !== fetchKey || isInitialMount.current) {
-        console.log('SolicitarServicioPage - Fetching menus for:', fetchKey);
-        lastFetchKey.current = fetchKey;
-        isInitialMount.current = false;
+      // Only fetch menus if user has tickets OR has an existing order
+      if (hasActiveTickets || hasExistingOrder) {
+        // Create a unique key for this fetch to prevent duplicates
+        const fetchKey = `${restauranteSeleccionado.id}-${tipoServicioSeleccionado.id}-${diaSeleccionado.id}`;
         
-        setIsLoadingMenus(true);
-        fetchMenus(
-          token,
-          documentNumber,
-          restauranteSeleccionado.id,
-          tipoServicioSeleccionado.id,
-          diaSeleccionado.id
-        ).finally(() => {
-          setIsLoadingMenus(false);
-        });
-      } else {
-        console.log('SolicitarServicioPage - Skipping duplicate fetch for:', fetchKey);
+        // Only fetch if this is a different combination or first mount
+        if (lastFetchKey.current !== fetchKey || isInitialMount.current) {
+          lastFetchKey.current = fetchKey;
+          isInitialMount.current = false;
+          
+          setIsLoadingMenus(true);
+          fetchMenus(
+            token,
+            documentNumber,
+            restauranteSeleccionado.id,
+            tipoServicioSeleccionado.id,
+            diaSeleccionado.id
+          ).finally(() => {
+            setIsLoadingMenus(false);
+          });
+        }
       }
     }
-  }, [user, token, diaSeleccionado, tipoServicioSeleccionado, restauranteSeleccionado, fetchMenus]);
+  }, [user, token, diaSeleccionado, tipoServicioSeleccionado, restauranteSeleccionado, hasActiveTickets, isEditingDay, fetchMenus]);
 
   // Preselect menu if this day has an existing order (only once per day)
   useEffect(() => {
@@ -126,40 +125,25 @@ export const SolicitarServicioPage = () => {
       // Only preselect if we haven't already done it for this day
       if (hasPreselectedMenuRef.current !== diaSeleccionado.id) {
         const existingOrder = getExistingOrderForDay(diaSeleccionado.id);
-        console.log('SolicitarServicioPage - Preselection check:', {
-          dayId: diaSeleccionado.id,
-          existingOrder,
-          menusAvailable: menus.length,
-          currentSelection: menuSeleccionado?.id
-        });
         
         if (existingOrder) {
           const existingMenuId = parseInt(existingOrder.id_menu);
           // Only preselect menu if it's not a "declined benefit" order (menu_id !== 0)
           if (existingMenuId !== 0) {
             const menu = menus.find(m => m.id === existingMenuId);
-            console.log('SolicitarServicioPage - Found menu to preselect:', menu);
             if (menu) {
               // Only select if not already selected to avoid unnecessary updates
               if (menuSeleccionado?.id !== menu.id) {
-                console.log('SolicitarServicioPage - Calling selectMenu for:', menu.id);
                 selectMenu(menu);
-                console.log('SolicitarServicioPage - Menu preselected:', menu.id);
-              } else {
-                console.log('SolicitarServicioPage - Menu already selected, skipping');
               }
               // Mark that we've preselected for this day
               hasPreselectedMenuRef.current = diaSeleccionado.id;
-            } else {
-              console.warn('SolicitarServicioPage - Menu not found in available menus:', existingMenuId);
             }
           }
         } else {
           // No existing order, mark as done so we don't keep checking
           hasPreselectedMenuRef.current = diaSeleccionado.id;
         }
-      } else {
-        console.log('SolicitarServicioPage - Skipping preselection, already done for day:', diaSeleccionado.id);
       }
     }
   }, [diaSeleccionado, menus, getExistingOrderForDay, selectMenu, declinarBeneficio, menuSeleccionado]);
@@ -240,51 +224,20 @@ export const SolicitarServicioPage = () => {
     );
   }
 
-  // Show message when user has no active tickets
-  if (!loading && !hasActiveTickets) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Header onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
-        
-        <div className="flex">
-          <Sidebar 
-            isMobileMenuOpen={isMobileMenuOpen}
-            setIsMobileMenuOpen={setIsMobileMenuOpen}
-          />
-          
-          <main className="flex-1 p-8">
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="text-center py-12">
-                <svg className="w-16 h-16 mx-auto mb-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                  {ticketsErrorMessage || 'No tienes tiquetes activos para solicitar el servicio'}
-                </h2>
-                <p className="text-gray-600">Por favor, contacta al administrador para obtener más información.</p>
-              </div>
-            </div>
-          </main>
-        </div>
-        
-        <Footer />
-      </div>
-    );
-  }
-
   // Show message when there are no days available
-  if (!loading && hasActiveTickets && diasDisponibles.length === 0) {
+  if (!loading && diasDisponibles.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
         
-        <div className="flex">
-          <Sidebar 
-            isMobileMenuOpen={isMobileMenuOpen}
-            setIsMobileMenuOpen={setIsMobileMenuOpen}
-          />
-          
-          <main className="flex-1 p-8">
+        <div className="max-w-[1600px] mx-auto">
+          <div className="flex">
+            <Sidebar 
+              isMobileMenuOpen={isMobileMenuOpen}
+              setIsMobileMenuOpen={setIsMobileMenuOpen}
+            />
+            
+            <main className="flex-1 p-8">
             <div className="bg-white rounded-lg shadow p-6">
               <div className="text-center py-12">
                 <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -295,6 +248,7 @@ export const SolicitarServicioPage = () => {
               </div>
             </div>
           </main>
+          </div>
         </div>
         
         <Footer />
@@ -306,13 +260,14 @@ export const SolicitarServicioPage = () => {
     <div className="min-h-screen bg-gray-50">
       <Header onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
       
-      <div className="flex">
-        <Sidebar 
-          isMobileMenuOpen={isMobileMenuOpen}
-          setIsMobileMenuOpen={setIsMobileMenuOpen}
-        />
-        
-        <main className="flex-1 p-8">
+      <div className="max-w-[1600px] mx-auto">
+        <div className="flex">
+          <Sidebar 
+            isMobileMenuOpen={isMobileMenuOpen}
+            setIsMobileMenuOpen={setIsMobileMenuOpen}
+          />
+          
+          <main className="flex-1 p-8">
         <div className="bg-white rounded-lg shadow p-6">
           {/* Header */}
           <div className="mb-3">
@@ -420,6 +375,24 @@ export const SolicitarServicioPage = () => {
             <div className="space-y-6">
               <h2 className="text-md font-semibold text-gray-900">Selecciona restaurante, tipo de servicio y menú</h2>
               
+              {/* No Tickets Warning - Only show for NEW orders (not editing) */}
+              {!hasActiveTickets && diaSeleccionado && !isEditingDay(diaSeleccionado.id) && (
+                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                  <div className="flex items-start">
+                    <div className="flex-shrink-0">
+                      <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm text-yellow-700 font-medium">
+                        Actualmente no posee ningún día para realizar pedidos
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               {/* Selection Row */}
               <div className="bg-blue-50 rounded-lg p-4">
                 <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0">
@@ -495,8 +468,8 @@ export const SolicitarServicioPage = () => {
                     </label>
                   </div>
 
-                  {/* Menus */}
-                  {!declinarBeneficio && (
+                  {/* Menus - Only show if user has tickets OR is editing existing order */}
+                  {!declinarBeneficio && (hasActiveTickets || (diaSeleccionado && isEditingDay(diaSeleccionado.id))) && (
                     <div>
                       <h4 className="text-sm font-medium text-gray-700 mb-3">Menús Disponibles</h4>
                       {isLoadingMenus ? (
@@ -518,7 +491,6 @@ export const SolicitarServicioPage = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {menus.map((menu) => {
                             const isSelected = menuSeleccionado?.id === menu.id;
-                            console.log('Rendering menu:', menu.id, 'menuSeleccionado?.id:', menuSeleccionado?.id, 'isSelected:', isSelected);
                             return (
                             <button
                               key={menu.id}
@@ -714,6 +686,7 @@ export const SolicitarServicioPage = () => {
           </div>
         </div>
         </main>
+        </div>
       </div>
       
       <Footer />

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '../../stores/authStore';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -35,19 +35,24 @@ export const Header = ({ onMenuClick }: HeaderProps = {}) => {
   }, [showUserDropdown]);
 
   return (
-    <header className="bg-white shadow-sm">
+    <header className="bg-white shadow-sm max-w-[1600px] mx-auto">
         {/* Menu Banner */}
         <div className="flex items-center justify-center">
           <img src="/banner-udea.jpg" alt="Banner UdeA" className="w-full object-cover max-h-32 sm:max-h-40 md:max-h-none" />
         </div>
 
-        <div className="bg-blue-50 px-3 sm:px-4 lg:px-6 py-2 sm:py-3">
-          <div className="flex items-center justify-between gap-2">
+        <div className="bg-blue-50">
+          <div className="px-3 sm:px-4 lg:px-6 py-2 sm:py-3">
+            <div className="flex items-center justify-between gap-2">
             
             
             {/* Title - Center on mobile, left on desktop */}
             <div className="flex-1 flex items-center lg:justify-start">
-              <span className="flex items-center gap-2 text-grey-700 font-medium text-xs sm:text-sm lg:text-base text-center sm:text-left">
+              <Link
+                to="/dashboard"
+                className="flex items-center gap-2 text-grey-700 font-medium text-xs sm:text-sm lg:text-base text-center sm:text-left focus:outline-none"
+                aria-label="Ir al Dashboard"
+              >
                 <img
                   src="/icon-48x48-transparent.png"
                   alt="Logo UdeA"
@@ -55,7 +60,7 @@ export const Header = ({ onMenuClick }: HeaderProps = {}) => {
                   style={{ minWidth: '1.5rem' }}
                 />
                 Elige tu Menú
-              </span>
+              </Link>
             </div>
 
              {/* User Widget - Right side */}
@@ -123,6 +128,7 @@ export const Header = ({ onMenuClick }: HeaderProps = {}) => {
                 </svg>
               </button>
             )}
+            </div>
           </div>
         </div>
     </header>

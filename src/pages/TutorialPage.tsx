@@ -24,13 +24,14 @@ export const TutorialPage = () => {
     <div className="min-h-screen bg-gray-50">
       <Header onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
       
-      <div className="flex">
-        <Sidebar 
-          isMobileMenuOpen={isMobileMenuOpen}
-          setIsMobileMenuOpen={setIsMobileMenuOpen}
-        />
-        
-        <main className="flex-1 p-8">
+      <div className="max-w-[1600px] mx-auto">
+        <div className="flex">
+          <Sidebar 
+            isMobileMenuOpen={isMobileMenuOpen}
+            setIsMobileMenuOpen={setIsMobileMenuOpen}
+          />
+          
+          <main className="flex-1 p-8">
           <div className="bg-white rounded-lg shadow p-6">
             {/* Header */}
             <div className="mb-6">
@@ -57,6 +58,7 @@ export const TutorialPage = () => {
             </div>
           </div>
         </main>
+        </div>
       </div>
       
       <Footer />

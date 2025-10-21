@@ -11,21 +11,44 @@ export const DashboardPage = () => {
     <div className="min-h-screen bg-gray-50">
       <Header onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
       
-      <div className="flex">
-        <Sidebar 
-          isMobileMenuOpen={isMobileMenuOpen}
-          setIsMobileMenuOpen={setIsMobileMenuOpen}
-        />
-        
-        <main className="flex-1 p-3 sm:p-4 lg:p-8">
+      <div className="max-w-[1600px] mx-auto">
+        <div className="flex">
+          <Sidebar 
+            isMobileMenuOpen={isMobileMenuOpen}
+            setIsMobileMenuOpen={setIsMobileMenuOpen}
+          />
+          
+          <main className="flex-1 p-3 sm:p-4 lg:p-8">
         <div className="bg-white rounded-lg shadow p-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-6">
             Escoje qué deseas hacer hoy 
           </h1>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Link to="/solicitar-servicio" className="block">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 hover:bg-blue-100 transition-colors cursor-pointer">
+          {/* Informative message */}
+          <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-blue-700">
+                  Recuerda reportar las novedades al correo{' '}
+                  <a 
+                    href="mailto:servicioalimentacion@udea.edu.co" 
+                    className="font-medium underline hover:text-blue-900"
+                  >
+                    servicioalimentacion@udea.edu.co
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Link to="/solicitar-servicio" className="block h-full">
+              <div className="h-full bg-blue-50 border border-blue-200 rounded-lg p-6 hover:bg-blue-100 transition-colors cursor-pointer">
                 <h3 className="text-lg font-semibold text-blue-900 mb-2">
                   Solicitar Servicio
                 </h3>
@@ -35,8 +58,8 @@ export const DashboardPage = () => {
               </div>
             </Link>
             
-            <Link to="/mis-solicitudes" className="block">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-6 hover:bg-green-100 transition-colors cursor-pointer">
+            <Link to="/mis-solicitudes" className="block h-full">
+              <div className="h-full bg-green-50 border border-green-200 rounded-lg p-6 hover:bg-green-100 transition-colors cursor-pointer">
                 <h3 className="text-lg font-semibold text-green-900 mb-2">
                   Mis Solicitudes
                 </h3>
@@ -46,8 +69,8 @@ export const DashboardPage = () => {
               </div>
             </Link>
             
-            <Link to="/cancelaciones" className="block">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-6 hover:bg-red-100 transition-colors cursor-pointer">
+            <Link to="/cancelaciones" className="block h-full">
+              <div className="h-full bg-red-50 border border-red-200 rounded-lg p-6 hover:bg-red-100 transition-colors cursor-pointer">
                 <h3 className="text-lg font-semibold text-red-900 mb-2">
                   Cancelar Pedidos
                 </h3>
@@ -57,7 +80,7 @@ export const DashboardPage = () => {
               </div>
             </Link>
             
-            <Link to="/cambiar-contrasena" className="block">
+            {/* <Link to="/cambiar-contrasena" className="block">
               <div className="bg-purple-50 border border-purple-200 rounded-lg p-6 hover:bg-purple-100 transition-colors cursor-pointer">
                 <h3 className="text-lg font-semibold text-purple-900 mb-2">
                   Perfil
@@ -66,10 +89,11 @@ export const DashboardPage = () => {
                   Gestiona tu información personal
                 </p>
               </div>
-            </Link>
+            </Link> */}
           </div>
         </div>
         </main>
+        </div>
       </div>
       
       <Footer />

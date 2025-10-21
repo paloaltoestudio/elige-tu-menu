@@ -163,13 +163,14 @@ export const ChangePasswordPage = () => {
     <div className="min-h-screen bg-gray-50">
       <Header onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
       
-      <div className="flex">
-        <Sidebar 
-          isMobileMenuOpen={isMobileMenuOpen}
-          setIsMobileMenuOpen={setIsMobileMenuOpen}
-        />
-        
-        <main className="flex-1 p-8">
+      <div className="max-w-[1600px] mx-auto">
+        <div className="flex">
+          <Sidebar 
+            isMobileMenuOpen={isMobileMenuOpen}
+            setIsMobileMenuOpen={setIsMobileMenuOpen}
+          />
+          
+          <main className="flex-1 p-8">
           <div className="max-w-2xl mx-auto">
             <div className="bg-white rounded-lg shadow p-6">
               <h1 className="text-2xl font-bold text-gray-900 mb-6">
@@ -356,6 +357,7 @@ export const ChangePasswordPage = () => {
             </div>
           </div>
         </main>
+        </div>
       </div>
       
       <Footer />
