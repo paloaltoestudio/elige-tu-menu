@@ -254,38 +254,6 @@ export const SolicitarServicioPage = () => {
     );
   }
 
-  // Show message when there are no days available
-  if (!loading && diasDisponibles.length === 0) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Header onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
-        
-        <div className="max-w-[1600px] mx-auto">
-          <div className="flex">
-            <Sidebar 
-              isMobileMenuOpen={isMobileMenuOpen}
-              setIsMobileMenuOpen={setIsMobileMenuOpen}
-            />
-            
-            <main className="flex-1 p-8">
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="text-center py-12">
-                <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">No tienes días habilitados aún</h2>
-                <p className="text-gray-600">Por favor, contacta al administrador o vuelve más tarde.</p>
-              </div>
-            </div>
-          </main>
-          </div>
-        </div>
-        
-        <Footer />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Header onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
