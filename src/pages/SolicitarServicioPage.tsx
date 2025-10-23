@@ -596,7 +596,7 @@ export const SolicitarServicioPage = () => {
                   {declinarBeneficio ? (
                     <div className="flex flex-col sm:flex-row justify-between">
                       <span className="text-gray-600">Opción:</span>
-                      <span className="font-medium text-red-600">Beneficio Declinado</span>
+                      <span className="font-medium text-red-600">Servicio no solicitado</span>
                     </div>
                   ) : (
                     <div className="flex flex-col sm:flex-row justify-between">
