@@ -39,6 +39,20 @@ export const MisSolicitudesPage = () => {
     fetchSolicitudes(1, itemsPerPage, storeFilters);
   }, [fetchSolicitudes, itemsPerPage, storeFilters]);
 
+  // Reset filters on component unmount
+  useEffect(() => {
+    return () => {
+      const resetFilters = {
+        menu: '',
+        fechaDesde: '',
+        fechaHasta: '',
+        estado: '',
+      };
+      updateFilters(resetFilters);
+      resetFilterOptions();
+    };
+  }, [updateFilters, resetFilterOptions]);
+
   // Server-side filtering and pagination - no client-side processing needed
   console.log('Solicitudes:', solicitudes);
 
@@ -48,7 +62,6 @@ export const MisSolicitudesPage = () => {
 
   const handleFilterChange = (newFilters: typeof filters) => {
     setFilters(newFilters);
-    updateFilters(newFilters);
   };
 
   const handleSearch = () => {

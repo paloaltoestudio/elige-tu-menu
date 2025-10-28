@@ -50,7 +50,7 @@ export const Header = ({ onMenuClick }: HeaderProps = {}) => {
             <div className="flex-1 flex items-center lg:justify-start">
               <Link
                 to="/dashboard"
-                className="flex items-center gap-2 text-grey-700 font-medium text-xs sm:text-sm lg:text-base text-center sm:text-left focus:outline-none"
+                className="link_logo flex items-center gap-2 font-medium text-xs sm:text-sm lg:text-base text-center sm:text-left focus:outline-none"
                 aria-label="Ir al Dashboard"
               >
                 <img

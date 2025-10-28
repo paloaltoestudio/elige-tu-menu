@@ -60,16 +60,23 @@ export const useSolicitudesStore = create<SolicitudesState>((set, get) => ({
       // Use filters for date range or default to last 6 months
       let fechaInicial, fechaFinal;
       
-      if (filters.fechaDesde && filters.fechaHasta) {
+      // Handle fechaDesde (from date)
+      if (filters.fechaDesde) {
         fechaInicial = filters.fechaDesde;
-        fechaFinal = filters.fechaHasta;
       } else {
-        // Default to last 6 months if no date filters
-        const endDate = new Date();
-        endDate.setDate(endDate.getDate() + 15);
+        // Default to 6 months ago if no from date
         const startDate = new Date();
         startDate.setMonth(startDate.getMonth() - 6);
         fechaInicial = startDate.toISOString().split('T')[0];
+      }
+      
+      // Handle fechaHasta (to date)
+      if (filters.fechaHasta) {
+        fechaFinal = filters.fechaHasta;
+      } else {
+        // Default to 15 days ahead if no to date
+        const endDate = new Date();
+        endDate.setDate(endDate.getDate() + 15);
         fechaFinal = endDate.toISOString().split('T')[0];
       }
 

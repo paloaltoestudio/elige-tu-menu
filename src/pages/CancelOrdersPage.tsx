@@ -19,6 +19,12 @@ export const CancelOrdersPage = () => {
     fechaHasta: '',
     estado: ''
   });
+  const [appliedFilters, setAppliedFilters] = useState({
+    menu: '',
+    fechaDesde: '',
+    fechaHasta: '',
+    estado: ''
+  });
   const [availableMenus, setAvailableMenus] = useState<string[]>([]);
   
   const { user, token } = useAuthStore();
@@ -46,6 +52,20 @@ export const CancelOrdersPage = () => {
       setAvailableMenus(uniqueMenus);
     }
   }, [ordersToCancel]);
+
+  // Reset filters on component unmount
+  useEffect(() => {
+    return () => {
+      const resetFilters = {
+        menu: '',
+        fechaDesde: '',
+        fechaHasta: '',
+        estado: ''
+      };
+      setFilters(resetFilters);
+      setAppliedFilters(resetFilters);
+    };
+  }, []);
 
   const handleCancelOrder = async (order: any) => {
     if (user && token && user.documento) {
@@ -87,37 +107,34 @@ export const CancelOrdersPage = () => {
   };
 
   const handleSearch = () => {
-    if (user && token && user.documento) {
-      fetchOrdersToCancel(token, user.documento);
-    }
+    setAppliedFilters(filters);
   };
 
   const handleReset = () => {
-    setFilters({
+    const resetFilters = {
       menu: '',
       fechaDesde: '',
       fechaHasta: '',
       estado: ''
-    });
-    if (user && token && user.documento) {
-      fetchOrdersToCancel(token, user.documento);
-    }
+    };
+    setFilters(resetFilters);
+    setAppliedFilters(resetFilters);
   };
 
-  // Filter orders based on current filters
+  // Filter orders based on applied filters
   const filteredOrders = ordersToCancel.filter(order => {
-    if (filters.menu && order.nombre_menu !== filters.menu) return false;
-    if (filters.estado && 'SOLICITADO' !== filters.estado) return false; // All orders are SOLICITADO
+    if (appliedFilters.menu && order.nombre_menu !== appliedFilters.menu) return false;
+    if (appliedFilters.estado && 'SOLICITADO' !== appliedFilters.estado) return false; // All orders are SOLICITADO
     
     // Date filtering
-    if (filters.fechaDesde || filters.fechaHasta) {
+    if (appliedFilters.fechaDesde || appliedFilters.fechaHasta) {
       const orderDate = new Date(order.fecha_pedido);
-      if (filters.fechaDesde) {
-        const desdeDate = new Date(filters.fechaDesde);
+      if (appliedFilters.fechaDesde) {
+        const desdeDate = new Date(appliedFilters.fechaDesde);
         if (orderDate < desdeDate) return false;
       }
-      if (filters.fechaHasta) {
-        const hastaDate = new Date(filters.fechaHasta);
+      if (appliedFilters.fechaHasta) {
+        const hastaDate = new Date(appliedFilters.fechaHasta);
         if (orderDate > hastaDate) return false;
       }
     }
