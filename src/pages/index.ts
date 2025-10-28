@@ -5,3 +5,5 @@ export { SolicitarServicioPage } from './SolicitarServicioPage';
 export { ChangePasswordPage } from './ChangePasswordPage';
 export { CancelOrdersPage } from './CancelOrdersPage';
 export { TutorialPage } from './TutorialPage';
+export { ForgotPasswordPage } from './ForgotPasswordPage';
+export { ResetPasswordPage } from './ResetPasswordPage';

@@ -9,6 +9,8 @@ import { SolicitarServicioPage } from './pages/SolicitarServicioPage';
 import { ChangePasswordPage } from './pages/ChangePasswordPage';
 import { CancelOrdersPage } from './pages/CancelOrdersPage';
 import { TutorialPage } from './pages/TutorialPage';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 function App() {
@@ -41,6 +43,14 @@ function App() {
           <Route 
             path="/login" 
             element={<LoginPage />} 
+          />
+          <Route 
+            path="/olvide-contrasena" 
+            element={<ForgotPasswordPage />} 
+          />
+          <Route 
+            path="/resetear-contrasena" 
+            element={<ResetPasswordPage />} 
           />
           <Route 
             path="/dashboard" 

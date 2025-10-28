@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -8,6 +9,7 @@ const REMEMBER_ME_KEY = 'rememberMe';
 const SAVED_USERNAME_KEY = 'savedUsername';
 
 export const LoginForm = () => {
+  const navigate = useNavigate();
   const [credentials, setCredentials] = useState<LoginCredentials>({
     usuario: '',
     password: '',
@@ -166,12 +168,13 @@ export const LoginForm = () => {
       </form>
       
       <div className="mt-4 text-center">
-        <a
-          href="#"
+        <button
+          type="button"
+          onClick={() => navigate('/olvide-contrasena')}
           className="text-xs sm:text-sm text-blue-600 hover:text-blue-500"
         >
           ¿Olvidó la contraseña?
-        </a>
+        </button>
       </div>
     </div>
   );
