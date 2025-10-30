@@ -91,16 +91,16 @@ export const Header = ({ onMenuClick }: HeaderProps = {}) => {
                           {user.nombres || user.usuario || user.sub}
                         </span>
                         <div className="py-1">
-                          <button
-                            onClick={() => {
-                              navigate('/cambiar-contrasena');
-                              setShowUserDropdown(false);
-                            }}
-                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                          >
-                            <i className="fa-solid fa-key text-gray-500"></i>
-                            Cambiar contraseña
-                          </button>
+                        <button
+                          onClick={() => {
+                            navigate('/cambiar-contrasena-auth');
+                            setShowUserDropdown(false);
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                        >
+                          <i className="fa-solid fa-key text-gray-500"></i>
+                          Cambiar contraseña
+                        </button>
                           <hr className="my-1 border-gray-200" />
                           <button
                             onClick={handleLogout}

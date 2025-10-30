@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { LoginForm } from '../components/auth/LoginForm';
 import { Header } from '../components/layout/Header';
@@ -7,7 +7,22 @@ import { Footer } from '../components/layout/Footer';
 
 export const LoginPage = () => {
   const { isAuthenticated } = useAuthStore();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState<'students' | 'employees'>('students');
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Get messages from navigation state
+  useEffect(() => {
+    if (location.state) {
+      if (location.state.message) {
+        setSuccessMessage(location.state.message);
+      }
+      if (location.state.error) {
+        setErrorMessage(location.state.error);
+      }
+    }
+  }, [location]);
 
   // If user is already authenticated, redirect to dashboard
   if (isAuthenticated) {
@@ -24,6 +39,21 @@ export const LoginPage = () => {
       {/* Main Content */}
       <div className="flex-1 w-full">
         <div className="max-w-3xl mx-auto px-4 py-6">
+          {/* Success/Error Messages */}
+          {successMessage && (
+            <div className="mb-4 max-w-md mx-auto">
+              <div className="bg-green-50 border border-green-200 rounded-md p-4">
+                <p className="text-sm text-green-800 text-center">{successMessage}</p>
+              </div>
+            </div>
+          )}
+          {errorMessage && (
+            <div className="mb-4 max-w-md mx-auto">
+              <div className="bg-red-50 border border-red-200 rounded-md p-4">
+                <p className="text-sm text-red-800 text-center">{errorMessage}</p>
+              </div>
+            </div>
+          )}
           {/* Login Form */}
           <div className="flex justify-center mb-0">
             <LoginForm />

@@ -32,8 +32,8 @@ export const Sidebar = ({ className = '', isMobileMenuOpen, setIsMobileMenuOpen 
     },
     {
       label: 'Cambiar contraseña',
-      path: '/cambiar-contrasena',
-      active: location.pathname === '/cambiar-contrasena',
+      path: '/cambiar-contrasena-auth',
+      active: location.pathname === '/cambiar-contrasena-auth',
     },
     {
       label: 'Videos y tutoriales',

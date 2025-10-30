@@ -42,4 +42,28 @@ export interface ChangePasswordResponse {
   mensaje: string;
 }
 
+export interface ForgotPasswordRequest {
+  correo: string;
+}
+
+export interface ForgotPasswordResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    correo: string;
+    token: string;
+  };
+}
+
+export interface ResetPasswordRequest {
+  tk: string;
+  nuevo_password: string;
+  confirmar_password: string;
+}
+
+export interface ResetPasswordResponse {
+  success: boolean;
+  message: string;
+}
+
 export type UserRole = 'ESTUDIANTE' | 'DOCENTE' | 'WEBUSER';

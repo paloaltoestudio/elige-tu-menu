@@ -1,6 +1,6 @@
 import { jwtDecode } from 'jwt-decode';
 import apiClient from './api';
-import type { AuthResponse, LoginCredentials, User, ChangePasswordRequest, ChangePasswordResponse } from '../types/auth';
+import type { AuthResponse, LoginCredentials, User, ChangePasswordRequest, ChangePasswordResponse, ForgotPasswordRequest, ForgotPasswordResponse, ResetPasswordRequest, ResetPasswordResponse } from '../types/auth';
 
 export class AuthService {
   static async login(credentials: LoginCredentials): Promise<AuthResponse> {
@@ -137,6 +137,50 @@ export class AuthService {
       console.error('Change password error:', error);
       const errorMessage = error.response?.data?.mensaje || error.message || 'Error al cambiar la contraseña';
       throw new Error(errorMessage);
+    }
+  }
+
+  static async forgotPassword(request: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
+    try {
+      const formData = new URLSearchParams();
+      formData.append('correo', request.correo);
+
+      console.log('Forgot password request for:', request.correo);
+
+      const response = await apiClient.post('/api/ws_eligetumenu/olvidar_contrasena', formData, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
+      
+      console.log('Forgot password response:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('Forgot password error:', error);
+      throw error; // Re-throw to handle in the calling component
+    }
+  }
+
+  static async resetPassword(request: ResetPasswordRequest): Promise<ResetPasswordResponse> {
+    try {
+      const formData = new URLSearchParams();
+      formData.append('tk', request.tk);
+      formData.append('nuevo_password', request.nuevo_password);
+      formData.append('confirmar_password', request.confirmar_password);
+
+      console.log('Reset password request with token:', request.tk);
+
+      const response = await apiClient.post('/api/ws_eligetumenu/cambiar_contrasena_recuperacion', formData, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
+      
+      console.log('Reset password response:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('Reset password error:', error);
+      throw error; // Re-throw to handle in the calling component
     }
   }
 }

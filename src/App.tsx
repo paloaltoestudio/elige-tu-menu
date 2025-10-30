@@ -49,10 +49,6 @@ function App() {
             element={<ForgotPasswordPage />} 
           />
           <Route 
-            path="/resetear-contrasena" 
-            element={<ResetPasswordPage />} 
-          />
-          <Route 
             path="/dashboard" 
             element={
               <ProtectedRoute>
@@ -78,6 +74,10 @@ function App() {
           />
               <Route 
                 path="/cambiar-contrasena" 
+                element={<ResetPasswordPage />} 
+              />
+              <Route 
+                path="/cambiar-contrasena-auth" 
                 element={
                   <ProtectedRoute>
                     <ChangePasswordPage />

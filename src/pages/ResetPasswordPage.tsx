@@ -1,49 +1,90 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { Header } from '../components/layout/Header';
 import { Footer } from '../components/layout/Footer';
+import { AuthService } from '../services/authService';
 
 export const ResetPasswordPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [token, setToken] = useState<string | null>(null);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [validationError, setValidationError] = useState('');
   const [activeTab, setActiveTab] = useState<'students' | 'employees'>('students');
+
+  // Get token from URL parameters
+  useEffect(() => {
+    const tokenParam = searchParams.get('token');
+    if (!tokenParam) {
+      // If no token, redirect to login with error message
+      navigate('/login', { 
+        state: { error: 'El link de recuperación de contraseña ya no aparece activo, intente de nuevo' } 
+      });
+    } else {
+      setToken(tokenParam);
+    }
+  }, [searchParams, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setValidationError('');
+    
+    if (!token) {
+      setValidationError('Token no válido');
+      return;
+    }
     
     // Basic validation
     if (!password.trim() || !confirmPassword.trim()) {
-      setError('Por favor complete todos los campos');
+      setValidationError('Por favor complete todos los campos');
       return;
     }
     
     if (password !== confirmPassword) {
-      setError('Las contraseñas no coinciden');
+      setValidationError('Las contraseñas no coinciden');
       return;
     }
     
     if (password.length < 8) {
-      setError('La contraseña debe tener al menos 8 caracteres');
+      setValidationError('La contraseña debe tener al menos 8 caracteres');
       return;
     }
     
     setLoading(true);
     
-    // TODO: Implement API call when web service is ready
-    // For now, just simulate a delay and show success message
-    setTimeout(() => {
+    try {
+      const response = await AuthService.resetPassword({
+        tk: token,
+        nuevo_password: password,
+        confirmar_password: confirmPassword,
+      });
+      
+      if (response.success) {
+        // Success - redirect to login with success message
+        navigate('/login', { 
+          state: { message: 'Contraseña actualizada exitosamente, ya puedes ingresar' } 
+        });
+      } else {
+        // Failure - redirect to login with error message
+        navigate('/login', { 
+          state: { error: 'El link de recuperación de contraseña ya no aparece activo, intente de nuevo' } 
+        });
+      }
+    } catch (error: any) {
+      console.error('Reset password error:', error);
+      // Failure - redirect to login with error message
+      navigate('/login', { 
+        state: { error: 'El link de recuperación de contraseña ya no aparece activo, intente de nuevo' } 
+      });
+    } finally {
       setLoading(false);
-      // In the future, this would redirect to login page with success message
-      navigate('/login', { state: { message: 'Contraseña restaurada exitosamente' } });
-    }, 1000);
+    }
   };
 
   return (
@@ -74,7 +115,7 @@ export const ResetPasswordPage = () => {
                       value={password}
                       onChange={(e) => {
                         setPassword(e.target.value);
-                        setError('');
+                        setValidationError('');
                       }}
                       placeholder="Ingrese su nueva contraseña"
                       required
@@ -110,7 +151,7 @@ export const ResetPasswordPage = () => {
                       value={confirmPassword}
                       onChange={(e) => {
                         setConfirmPassword(e.target.value);
-                        setError('');
+                        setValidationError('');
                       }}
                       placeholder="Confirme su nueva contraseña"
                       required
@@ -136,9 +177,9 @@ export const ResetPasswordPage = () => {
                   </div>
                 </div>
                 
-                {error && (
+                {validationError && (
                   <div className="bg-red-50 border border-red-200 rounded-md p-3">
-                    <p className="text-xs sm:text-sm text-red-600">{error}</p>
+                    <p className="text-xs sm:text-sm text-red-600">{validationError}</p>
                   </div>
                 )}
                 
