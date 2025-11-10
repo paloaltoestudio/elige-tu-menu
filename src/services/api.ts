@@ -1,3 +1,14 @@
+const environment = import.meta.env.VITE_APP_ENV;
+
+//replace console.* for disable log on production
+if (environment === 'PROD') {
+  console.log = () => {};
+  console.debug = () => {};
+  console.info = () => {};
+  console.warn = () => {};
+  console.error = () => {};
+}
+
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
