@@ -53,7 +53,7 @@ export const DashboardPage = () => {
                   Solicitar Servicio
                 </h3>
                 <p className="text-blue-700 text-sm">
-                  Elige tu menú para la semana actual
+                  Elige tu menú para la semana siguiente
                 </p>
               </div>
             </Link>

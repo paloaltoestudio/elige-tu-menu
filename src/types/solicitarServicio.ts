@@ -38,6 +38,7 @@ export interface Menu {
   id: number;
   nombre: string;
   foto?: string;
+  descripcion?: string;
 }
 
 export interface MenusResponse {

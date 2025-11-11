@@ -91,6 +91,7 @@ export const LoginForm = () => {
           value={credentials.usuario}
           onChange={handleInputChange('usuario')}
           placeholder="Ingrese su usuario"
+          autoCapitalize="none"
           required
         />
         

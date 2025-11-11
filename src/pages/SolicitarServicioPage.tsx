@@ -503,7 +503,7 @@ export const SolicitarServicioPage = () => {
                         onChange={toggleDeclinarBeneficio}
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                       />
-                      <span className="text-gray-700">Declinar beneficio para este día</span>
+                      <span className="text-gray-700">Rechazar beneficio para este día</span>
                     </label>
                   </div>
 
@@ -547,6 +547,7 @@ export const SolicitarServicioPage = () => {
                               }`}
                             >
                               <div className="font-medium mb-3">{menu.nombre}</div>
+                              <div className="text-sm text-gray-600 mb-3">{menu.descripcion}</div>
                               <div className="w-full h-32 rounded overflow-hidden bg-gray-100">
                                 <img
                                   src={menu.foto || '/lunch_placeholder.jpg'}
