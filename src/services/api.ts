@@ -17,8 +17,10 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 console.log('API Base URL:', API_BASE_URL);
 
 export const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 10000, // 10 second timeout
+  baseURL: API_BASE_URL?.endsWith('/')
+    ? API_BASE_URL.slice(0, -1)
+    : API_BASE_URL, // ensure no trailing slash in base URL
+  timeout: 30000, // increased timeout to 30 seconds for slow backend responses
 });
 
 
