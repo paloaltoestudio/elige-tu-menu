@@ -495,15 +495,15 @@ export const SolicitarServicioPage = () => {
                   <h3 className="text-md font-medium text-gray-800">Selecciona un menú o declina el beneficio</h3>
                   
                   {/* Decline option */}
-                  <div className="mb-4">
+                  <div className="mb-4 decline hover:bg-gray-50">
                     <label className="flex items-center space-x-3 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={declinarBeneficio}
                         onChange={toggleDeclinarBeneficio}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded scale-125"
                       />
-                      <span className="text-gray-700">Rechazar beneficio para este día</span>
+                      <span className="text-gray-700 uppercase">Rechazar beneficio para este día</span>
                     </label>
                   </div>
 
@@ -547,7 +547,11 @@ export const SolicitarServicioPage = () => {
                               }`}
                             >
                               <div className="font-medium mb-3">{menu.nombre}</div>
-                              <div className="text-sm text-gray-600 mb-3">{menu.descripcion}</div>
+                              <div
+                                className="text-sm text-gray-600 mb-3 whitespace-pre-line"
+                              >
+                                {menu.descripcion?.replace(/\\r\\n|\\n|\\r/g, '\n')}
+                              </div>
                               <div className="w-full h-32 rounded overflow-hidden bg-gray-100">
                                 <img
                                   src={menu.foto || '/lunch_placeholder.jpg'}

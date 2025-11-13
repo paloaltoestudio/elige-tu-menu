@@ -6,3 +6,11 @@
   color: #23527c;
 }
 
+.decline {
+  border: 1px solid #ccc;
+  padding: 20px;
+  border-radius: 10px;
+  font-weight: bold;
+  box-shadow: 5px 5px 15px rgba(5, 5, 53, 0.08);
+}
+
