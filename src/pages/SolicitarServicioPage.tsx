@@ -431,148 +431,155 @@ export const SolicitarServicioPage = () => {
                   </div>
                 </div>
               )}
-              
-              {/* Selection Row */}
-              <div className="bg-blue-50 rounded-lg p-4">
-                <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0">
-                
-                  
-                  {/* Restaurant Dropdown */}
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Restaurante:
-                    </label>
-                    <select
-                      value={restauranteSeleccionado?.id || ''}
-                      onChange={(e) => {
-                        const selectedId = parseInt(e.target.value);
-                        const selectedRestaurant = restaurantes.find(r => r.id === selectedId);
-                        if (selectedRestaurant) {
-                          selectRestaurante(selectedRestaurant);
-                        }
-                      }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="">Selecciona un restaurante</option>
-                      {restaurantes.map((restaurante) => (
-                        <option key={restaurante.id} value={restaurante.id}>
-                          {restaurante.nombre}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  {/* Service Type Dropdown */}
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Tipo de Servicio:
-                    </label>
-                    <select
-                      value={tipoServicioSeleccionado?.id || ''}
-                      onChange={(e) => {
-                        const selectedId = parseInt(e.target.value);
-                        const selectedService = tiposServicio.find(t => t.id === selectedId);
-                        if (selectedService) {
-                          selectTipoServicio(selectedService);
-                        }
-                      }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="">Selecciona tipo de servicio</option>
-                      {tiposServicio.map((tipo) => (
-                        <option key={tipo.id} value={tipo.id}>
-                          {tipo.nombre}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </div>
 
-              {/* Menu Selection */}
-              {tipoServicioSeleccionado && restauranteSeleccionado && (
-                <div className="space-y-4">
-                  <h3 className="text-md font-medium text-gray-800">Selecciona un menú o declina el beneficio</h3>
+              {hasActiveTickets && (
+              <>
+                {/* Selection Row */}
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0">
                   
-                  {/* Decline option */}
-                  <div className="mb-4 decline hover:bg-gray-50">
-                    <label className="flex items-center space-x-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={declinarBeneficio}
-                        onChange={toggleDeclinarBeneficio}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded scale-125"
-                      />
-                      <span className="text-gray-700 uppercase">Rechazar beneficio para este día</span>
-                    </label>
-                  </div>
-
-                  {/* Menus - Only show if user has tickets OR is editing existing order with a menu (not declined) */}
-                  {!declinarBeneficio && (
-                    hasActiveTickets || 
-                    (diaSeleccionado && isEditingDay(diaSeleccionado.id) && (() => {
-                      const existingOrder = getExistingOrderForDay(diaSeleccionado.id);
-                      return existingOrder && parseInt(existingOrder.id_menu) !== 0;
-                    })())
-                  ) && (
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-700 mb-3">Menús Disponibles</h4>
-                      {isLoadingMenus ? (
-                        <div className="text-center py-8">
-                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                          <p className="text-gray-600">Cargando menús...</p>
-                        </div>
-                      ) : menus.length === 0 ? (
-                        <div className="text-center py-8">
-                          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-                            <svg className="w-12 h-12 mx-auto mb-3 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                            <p className="text-gray-700 font-medium mb-1">No hay menú para estas opciones</p>
-                            <p className="text-gray-600 text-sm">Intenta con otras opciones de restaurante o tipo de servicio</p>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {menus.map((menu) => {
-                            const isSelected = menuSeleccionado?.id === menu.id;
-                            return (
-                            <button
-                              key={menu.id}
-                              onClick={() => selectMenu(menu)}
-                              className={`p-4 border rounded-lg text-left transition-colors ${
-                                isSelected
-                                  ? 'border-blue-500 bg-blue-50 text-blue-900'
-                                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                              }`}
-                            >
-                              <div className="font-medium mb-3">{menu.nombre}</div>
-                              <div
-                                className="text-sm text-gray-600 mb-3 whitespace-pre-line"
-                              >
-                                {menu.descripcion?.replace(/\\r\\n|\\n|\\r/g, '\n')}
-                              </div>
-                              <div className="w-full h-32 rounded overflow-hidden bg-gray-100">
-                                <img
-                                  src={menu.foto || '/lunch_placeholder.jpg'}
-                                  alt={menu.nombre}
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => {
-                                    // If image fails to load, use placeholder
-                                    const target = e.target as HTMLImageElement;
-                                    target.src = '/lunch_placeholder.jpg';
-                                  }}
-                                />
-                              </div>
-                            </button>
-                            );
-                          })}
-                        </div>
-                      )}
+                    
+                    {/* Restaurant Dropdown */}
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Restaurante:
+                      </label>
+                      <select
+                        value={restauranteSeleccionado?.id || ''}
+                        onChange={(e) => {
+                          const selectedId = parseInt(e.target.value);
+                          const selectedRestaurant = restaurantes.find(r => r.id === selectedId);
+                          if (selectedRestaurant) {
+                            selectRestaurante(selectedRestaurant);
+                          }
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Selecciona un restaurante</option>
+                        {restaurantes.map((restaurante) => (
+                          <option key={restaurante.id} value={restaurante.id}>
+                            {restaurante.nombre}
+                          </option>
+                        ))}
+                      </select>
                     </div>
-                  )}
+                    
+                    {/* Service Type Dropdown */}
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Tipo de Servicio:
+                      </label>
+                      <select
+                        value={tipoServicioSeleccionado?.id || ''}
+                        onChange={(e) => {
+                          const selectedId = parseInt(e.target.value);
+                          const selectedService = tiposServicio.find(t => t.id === selectedId);
+                          if (selectedService) {
+                            selectTipoServicio(selectedService);
+                          }
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Selecciona tipo de servicio</option>
+                        {tiposServicio.map((tipo) => (
+                          <option key={tipo.id} value={tipo.id}>
+                            {tipo.nombre}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
                 </div>
-              )}
+
+                {/* Menu Selection */}
+                {tipoServicioSeleccionado && restauranteSeleccionado && (
+                  <div className="space-y-4">
+                    <h3 className="text-md font-medium text-gray-800">Selecciona un menú o declina el beneficio</h3>
+                    
+                    {/* Decline option */}
+                    <div className="mb-4 decline hover:bg-gray-50">
+                      <label className="flex items-center space-x-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={declinarBeneficio}
+                          onChange={toggleDeclinarBeneficio}
+                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded scale-125"
+                        />
+                        <span className="text-gray-700 uppercase">Rechazar beneficio para este día</span>
+                      </label>
+                    </div>
+
+                    {/* Menus - Only show if user has tickets OR is editing existing order with a menu (not declined) */}
+                    {!declinarBeneficio && (
+                      hasActiveTickets || 
+                      (diaSeleccionado && isEditingDay(diaSeleccionado.id) && (() => {
+                        const existingOrder = getExistingOrderForDay(diaSeleccionado.id);
+                        return existingOrder && parseInt(existingOrder.id_menu) !== 0;
+                      })())
+                    ) && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-700 mb-3">Menús Disponibles</h4>
+                        {isLoadingMenus ? (
+                          <div className="text-center py-8">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                            <p className="text-gray-600">Cargando menús...</p>
+                          </div>
+                        ) : menus.length === 0 ? (
+                          <div className="text-center py-8">
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                              <svg className="w-12 h-12 mx-auto mb-3 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                              </svg>
+                              <p className="text-gray-700 font-medium mb-1">No hay menú para estas opciones</p>
+                              <p className="text-gray-600 text-sm">Intenta con otras opciones de restaurante o tipo de servicio</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {menus.map((menu) => {
+                              const isSelected = menuSeleccionado?.id === menu.id;
+                              return (
+                              <button
+                                key={menu.id}
+                                onClick={() => selectMenu(menu)}
+                                className={`p-4 border rounded-lg text-left transition-colors ${
+                                  isSelected
+                                    ? 'border-blue-500 bg-blue-50 text-blue-900'
+                                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                }`}
+                              >
+                                <div className="font-medium mb-3">{menu.nombre}</div>
+                                <div
+                                  className="text-sm text-gray-600 mb-3 whitespace-pre-line"
+                                >
+                                  {menu.descripcion?.replace(/\\r\\n|\\n|\\r/g, '\n')}
+                                </div>
+                                <div className="w-full h-32 rounded overflow-hidden bg-gray-100">
+                                  <img
+                                    src={menu.foto || '/lunch_placeholder.jpg'}
+                                    alt={menu.nombre}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      // If image fails to load, use placeholder
+                                      const target = e.target as HTMLImageElement;
+                                      target.src = '/lunch_placeholder.jpg';
+                                    }}
+                                  />
+                                </div>
+                              </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+
+
+
             </div>
           )}
 
@@ -680,44 +687,47 @@ export const SolicitarServicioPage = () => {
               )}
             </div>
           )}
-
-          {/* Navigation Buttons */}
-          <div className="mt-8 flex justify-between">
-            <div className="flex space-x-4">
-              
-              
-              {/* Previous Step Button - Disabled if step is 0 OR if order was already placed for this day */}
-              <Button
-                onClick={handlePreviousStep}
-                disabled={currentStep === 0 || (diaSeleccionado ? completedDays.includes(diaSeleccionado.id) : false)}
-                variant="outline"
-              >
-                Anterior
-              </Button>
-            </div>
-            
-            <div className="flex space-x-4">
-              {currentStep === 1 && !pedidoRealizado ? (
+          {hasActiveTickets && (
+            <>
+            {/* Navigation Buttons */}
+            <div className="mt-8 flex justify-between">
+              <div className="flex space-x-4">
+                
+                
+                {/* Previous Step Button - Disabled if step is 0 OR if order was already placed for this day */}
                 <Button
-                  onClick={handleConfirmPedido}
-                  disabled={loading}
-                  className="bg-green-600 hover:bg-green-700"
+                  onClick={handlePreviousStep}
+                  disabled={currentStep === 0 || (diaSeleccionado ? completedDays.includes(diaSeleccionado.id) : false)}
+                  variant="outline"
                 >
-                  {loading ? 'Procesando...' : (diaSeleccionado && isEditingDay(diaSeleccionado.id) ? 'Confirmar Cambios' : 'Confirmar Pedido')}
+                  Anterior
                 </Button>
-              ) : (
-                <Button
-                  onClick={handleContinuar}
-                  disabled={!canProceed() || loading}
-                >
-                  {pedidoRealizado 
-                    ? (currentDayIndex < diasDisponibles.length - 1 ? 'Siguiente Día' : 'Finalizar')
-                    : 'Continuar'
-                  }
-                </Button>
-              )}
+              </div>
+              
+              <div className="flex space-x-4">
+                {currentStep === 1 && !pedidoRealizado ? (
+                  <Button
+                    onClick={handleConfirmPedido}
+                    disabled={loading}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    {loading ? 'Procesando...' : (diaSeleccionado && isEditingDay(diaSeleccionado.id) ? 'Confirmar Cambios' : 'Confirmar Pedido')}
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleContinuar}
+                    disabled={!canProceed() || loading}
+                  >
+                    {pedidoRealizado 
+                      ? (currentDayIndex < diasDisponibles.length - 1 ? 'Siguiente Día' : 'Finalizar')
+                      : 'Continuar'
+                    }
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
+            </>
+          )}
         </div>
         </main>
         </div>
