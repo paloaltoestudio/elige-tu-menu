@@ -409,13 +409,16 @@ export const SolicitarServicioPage = () => {
               <h2 className="text-md font-semibold text-gray-900">Selecciona restaurante, tipo de servicio y menú</h2>
               
               {/* No Tickets Warning - Show for NEW orders OR editing orders with declined benefit (menu_id = 0) */}
-              {!hasActiveTickets && diaSeleccionado && (
-                !isEditingDay(diaSeleccionado.id) || 
-                (() => {
-                  const existingOrder = getExistingOrderForDay(diaSeleccionado.id);
-                  return existingOrder && parseInt(existingOrder.id_menu) === 0;
-                })()
-              ) && (
+              {!hasActiveTickets && diaSeleccionado && 
+              // (
+              //   !isEditingDay(diaSeleccionado.id) || 
+              //   (() => {
+              //     const existingOrder = getExistingOrderForDay(diaSeleccionado.id);
+              //     return existingOrder && parseInt(existingOrder.id_menu) === 0;
+              //   })()
+              // ) && 
+              
+              (
                 <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
                   <div className="flex items-start">
                     <div className="flex-shrink-0">
