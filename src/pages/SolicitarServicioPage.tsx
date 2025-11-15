@@ -21,6 +21,7 @@ export const SolicitarServicioPage = () => {
     tiposServicio,
     restaurantes,
     menus,
+    pedidosCicloActual,
     diaSeleccionado,
     tipoServicioSeleccionado,
     restauranteSeleccionado,
@@ -409,8 +410,8 @@ export const SolicitarServicioPage = () => {
             <div className="space-y-6">
               <h2 className="text-md font-semibold text-gray-900">Selecciona restaurante, tipo de servicio y menú</h2>
               
-              {/* Warning when no tickets or no available days from service */}
-              {(!hasActiveTickets || !hasAvailableDays) && (
+              {/* Warning when no tickets OR (no available days from service AND no existing orders) */}
+              {(!hasActiveTickets || (!hasAvailableDays && pedidosCicloActual.length === 0)) && (
                 <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
                   <div className="flex items-start">
                     <div className="flex-shrink-0">
@@ -427,7 +428,7 @@ export const SolicitarServicioPage = () => {
                 </div>
               )}
 
-              {hasActiveTickets && hasAvailableDays && (
+              {hasActiveTickets && !(!hasAvailableDays && pedidosCicloActual.length === 0) && (
               <>
                 {/* Selection Row */}
                 <div className="bg-blue-50 rounded-lg p-4">
@@ -682,7 +683,7 @@ export const SolicitarServicioPage = () => {
               )}
             </div>
           )}
-          {hasActiveTickets && hasAvailableDays && (
+          {hasActiveTickets && !(!hasAvailableDays && pedidosCicloActual.length === 0) && (
             <>
             {/* Navigation Buttons */}
             <div className="mt-8 flex justify-between">
@@ -711,7 +712,7 @@ export const SolicitarServicioPage = () => {
                 ) : (
                   <Button
                     onClick={handleContinuar}
-                    disabled={!canProceed() || loading}
+                    disabled={!canProceed() || loading || !!error}
                   >
                     {pedidoRealizado 
                       ? (currentDayIndex < diasDisponibles.length - 1 ? 'Siguiente Día' : 'Finalizar')

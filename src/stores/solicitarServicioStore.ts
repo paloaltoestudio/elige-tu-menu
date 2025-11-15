@@ -264,7 +264,7 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
   },
 
   realizarPedido: async (tk: string, numeroDocumento: string, diaId: number, restauranteId: number, tipoServicio: number, menuId: number, fechaPedido: string) => {
-    set({ loading: true, error: null });
+    set({ loading: true, error: null, pedidoRealizado: false });
     try {
       const state = get();
       const isEditing = state.isEditingDay(diaId, fechaPedido);
@@ -300,6 +300,7 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
       // Extract API error message if available, otherwise use default message
       const errorMessage = error.response?.data?.message || error.message || 'Ha ocurrido un error al realizar el pedido';
       set({ 
+        pedidoRealizado: false,
         error: errorMessage,
         loading: false 
       });
@@ -309,7 +310,7 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
   modificarPedido: async (tk: string, numeroDocumento: string, orderId: number, restauranteId: number, tipoServicio: number, menuId: number, fechaPedido: string) => {
     set({ loading: true, error: null });
     try {
-      await SolicitarServicioService.modificarPedido({ 
+      const apiResponse = await SolicitarServicioService.modificarPedido({ 
         tk, 
         numero_documento: numeroDocumento,
         registro: orderId,
@@ -318,6 +319,12 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
         menu_id: menuId,
         fecha_pedido: fechaPedido
       });
+      
+      // If backend returns success: false, treat as an error and stop the flow
+      if ((apiResponse as any)?.success === false) {
+        const message = (apiResponse as any)?.message || 'No fue posible modificar el pedido';
+        throw new Error(message);
+      }
       
       // Update the local pedidosCicloActual array with the new values
       const state = get();
@@ -345,6 +352,8 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
         error: errorMessage,
         loading: false 
       });
+      // Re-throw the error so that realizarPedido can catch it and not set pedidoRealizado to true
+      throw new Error(errorMessage);
     }
   },
 
