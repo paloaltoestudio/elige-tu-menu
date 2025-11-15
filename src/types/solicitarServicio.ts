@@ -162,6 +162,7 @@ export interface SolicitarServicioState {
   tiposServicio: TipoServicio[];
   restaurantes: Restaurante[];
   menus: Menu[];
+  hasAvailableDays: boolean;
   
   // Current cycle orders (existing orders)
   pedidosCicloActual: PedidoCicloActual[];
@@ -183,7 +184,7 @@ export interface SolicitarServicioState {
   
   // Linear day tracking
   currentDayIndex: number;
-  completedDays: number[];
+  completedDays: string[]; // track by fecha to handle repeated day ids across weeks
   
   // UI state
   loading: boolean;

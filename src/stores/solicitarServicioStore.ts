@@ -21,8 +21,9 @@ interface SolicitarServicioStore extends SolicitarServicioState {
   modificarPedido: (tk: string, numeroDocumento: string, orderId: number, restauranteId: number, tipoServicio: number, menuId: number, fechaPedido: string) => Promise<void>;
   
   // Helper methods
-  isEditingDay: (dayId: number) => boolean;
-  getExistingOrderForDay: (dayId: number) => PedidoCicloActual | null;
+  isEditingDay: (dayId: number, fecha: string) => boolean;
+  getExistingOrderForDay: (dayId: number, fecha: string) => PedidoCicloActual | null;
+  getOrderIdForDay: (dayId: number, fecha: string) => number | null;
   preloadDataForDay: (day: DiaDisponible) => void;
   
   // Selection actions
@@ -47,6 +48,7 @@ const initialState: SolicitarServicioState = {
   tiposServicio: [],
   restaurantes: [],
   menus: [],
+  hasAvailableDays: true,
   pedidosCicloActual: [],
   existingOrdersMap: {},
   hasActiveTickets: true,
@@ -128,19 +130,11 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
         existingOrdersMap[pedido.id_dia] = pedido.id;
       });
       
-      // Merge available days with existing orders
-      // Days from pedidos that are not in available days should also be included
-      const allDayIds = new Set([...sortedDays.map(d => d.id), ...pedidos.map(p => p.id_dia)]);
-      const mergedDays: DiaDisponible[] = [];
-      
-      allDayIds.forEach(dayId => {
-        const availableDay = sortedDays.find(d => d.id === dayId);
-        const existingOrder = pedidos.find(p => p.id_dia === dayId);
-        
-        if (availableDay) {
-          mergedDays.push(availableDay);
-        } else if (existingOrder) {
-          // Create a day entry from the existing order
+      // Merge available days with existing orders by fecha (avoid dedup by id)
+      const mergedDays: DiaDisponible[] = [...sortedDays];
+      pedidos.forEach(existingOrder => {
+        const existsByFecha = mergedDays.some(d => d.fecha === existingOrder.fecha_pedido);
+        if (!existsByFecha) {
           mergedDays.push({
             id: existingOrder.id_dia,
             nombre: existingOrder.dia,
@@ -156,10 +150,11 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
       const currentState = get();
       
       // Only reset selections if we're changing to a different day
-      const isDayChanging = currentState.diaSeleccionado?.id !== firstDay?.id;
+      const isDayChanging = currentState.diaSeleccionado?.fecha !== firstDay?.fecha;
       
       set({ 
         diasDisponibles: sortedMergedDays,
+        hasAvailableDays: sortedDays.length > 0,
         pedidosCicloActual: pedidos,
         existingOrdersMap,
         diaSeleccionado: firstDay,
@@ -272,11 +267,14 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
     set({ loading: true, error: null });
     try {
       const state = get();
-      const isEditing = state.isEditingDay(diaId);
+      const isEditing = state.isEditingDay(diaId, fechaPedido);
       
       if (isEditing) {
         // Edit existing order
-        const orderId = state.existingOrdersMap[diaId];
+        const orderId = state.getOrderIdForDay(diaId, fechaPedido);
+        if (orderId == null) {
+          throw new Error('No se encontró el pedido existente para actualizar');
+        }
         await get().modificarPedido(tk, numeroDocumento, orderId, restauranteId, tipoServicio, menuId, fechaPedido);
       } else {
         // Create new order
@@ -291,7 +289,7 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
         });
       }
       
-      const completedDays = [...state.completedDays, diaId];
+      const completedDays = [...state.completedDays, fechaPedido];
       
       set({ 
         pedidoRealizado: true,
@@ -351,19 +349,24 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
   },
 
   // Helper methods
-  isEditingDay: (dayId: number) => {
+  isEditingDay: (dayId: number, fecha: string) => {
     const state = get();
-    return dayId in state.existingOrdersMap;
+    return state.pedidosCicloActual.some(p => p.id_dia === dayId && p.fecha_pedido === fecha);
   },
 
-  getExistingOrderForDay: (dayId: number) => {
+  getExistingOrderForDay: (dayId: number, fecha: string) => {
     const state = get();
-    return state.pedidosCicloActual.find(p => p.id_dia === dayId) || null;
+    return state.pedidosCicloActual.find(p => p.id_dia === dayId && p.fecha_pedido === fecha) || null;
+  },
+  
+  getOrderIdForDay: (dayId: number, fecha: string) => {
+    const order = get().pedidosCicloActual.find(p => p.id_dia === dayId && p.fecha_pedido === fecha);
+    return order ? order.id : null;
   },
 
   preloadDataForDay: (day: DiaDisponible) => {
     const state = get();
-    const existingOrder = state.getExistingOrderForDay(day.id);
+    const existingOrder = state.getExistingOrderForDay(day.id, day.fecha);
     
     if (existingOrder) {
       // Check if the user declined the benefit for this day (menu_id = 0)

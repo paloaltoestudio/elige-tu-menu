@@ -13,8 +13,8 @@ export const SolicitarServicioPage = () => {
   const { user, token } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  // Track if we've already preselected the menu for the current day
-  const hasPreselectedMenuRef = useRef<number | null>(null);
+  // Track if we've already preselected the menu for the current day (by fecha)
+  const hasPreselectedMenuRef = useRef<string | null>(null);
   
   const {
     diasDisponibles,
@@ -34,6 +34,7 @@ export const SolicitarServicioPage = () => {
     pedidoRealizado,
     hasActiveTickets,
     serviceAvailabilityDate,
+    hasAvailableDays,
     isEditingDay,
     getExistingOrderForDay,
     preloadDataForDay,
@@ -125,13 +126,13 @@ export const SolicitarServicioPage = () => {
       const documentNumber = user.documento || user.sub;
       
       // Check if user has existing order for this day with a menu (not declined)
-      const existingOrder = diaSeleccionado ? getExistingOrderForDay(diaSeleccionado.id) : null;
+      const existingOrder = diaSeleccionado ? getExistingOrderForDay(diaSeleccionado.id, diaSeleccionado.fecha) : null;
       const hasExistingOrderWithMenu = existingOrder && parseInt(existingOrder.id_menu) !== 0;
       
       // Only fetch menus if user has tickets OR has an existing order with a menu
       if (hasActiveTickets || hasExistingOrderWithMenu) {
         // Create a unique key for this fetch to prevent duplicates
-        const fetchKey = `${restauranteSeleccionado.id}-${tipoServicioSeleccionado.id}-${diaSeleccionado.id}`;
+        const fetchKey = `${restauranteSeleccionado.id}-${tipoServicioSeleccionado.id}-${diaSeleccionado.id}-${diaSeleccionado.fecha}`;
         
         // Only fetch if this is a different combination or first mount
         if (lastFetchKey.current !== fetchKey || isInitialMount.current) {
@@ -157,8 +158,8 @@ export const SolicitarServicioPage = () => {
   useEffect(() => {
     if (diaSeleccionado && menus.length > 0 && !declinarBeneficio) {
       // Only preselect if we haven't already done it for this day
-      if (hasPreselectedMenuRef.current !== diaSeleccionado.id) {
-        const existingOrder = getExistingOrderForDay(diaSeleccionado.id);
+      if (hasPreselectedMenuRef.current !== diaSeleccionado.fecha) {
+        const existingOrder = getExistingOrderForDay(diaSeleccionado.id, diaSeleccionado.fecha);
         
         if (existingOrder) {
           const existingMenuId = parseInt(existingOrder.id_menu);
@@ -171,12 +172,12 @@ export const SolicitarServicioPage = () => {
                 selectMenu(menu);
               }
               // Mark that we've preselected for this day
-              hasPreselectedMenuRef.current = diaSeleccionado.id;
+              hasPreselectedMenuRef.current = diaSeleccionado.fecha;
             }
           }
         } else {
           // No existing order, mark as done so we don't keep checking
-          hasPreselectedMenuRef.current = diaSeleccionado.id;
+          hasPreselectedMenuRef.current = diaSeleccionado.fecha;
         }
       }
     }
@@ -308,7 +309,7 @@ export const SolicitarServicioPage = () => {
               <h1 className="text-xl md:text-2xl font-bold text-gray-900">
                 Solicitar Servicio
               </h1>
-              {diaSeleccionado && isEditingDay(diaSeleccionado.id) && (
+              {diaSeleccionado && isEditingDay(diaSeleccionado.id, diaSeleccionado.fecha) && (
                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                   Editando <span className="hidden md:inline ml-1"> pedido</span>
                 </span>
@@ -408,17 +409,8 @@ export const SolicitarServicioPage = () => {
             <div className="space-y-6">
               <h2 className="text-md font-semibold text-gray-900">Selecciona restaurante, tipo de servicio y menú</h2>
               
-              {/* No Tickets Warning - Show for NEW orders OR editing orders with declined benefit (menu_id = 0) */}
-              {!hasActiveTickets && diaSeleccionado && 
-              // (
-              //   !isEditingDay(diaSeleccionado.id) || 
-              //   (() => {
-              //     const existingOrder = getExistingOrderForDay(diaSeleccionado.id);
-              //     return existingOrder && parseInt(existingOrder.id_menu) === 0;
-              //   })()
-              // ) && 
-              
-              (
+              {/* Warning when no tickets or no available days from service */}
+              {(!hasActiveTickets || !hasAvailableDays) && (
                 <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
                   <div className="flex items-start">
                     <div className="flex-shrink-0">
@@ -435,7 +427,7 @@ export const SolicitarServicioPage = () => {
                 </div>
               )}
 
-              {hasActiveTickets && (
+              {hasActiveTickets && hasAvailableDays && (
               <>
                 {/* Selection Row */}
                 <div className="bg-blue-50 rounded-lg p-4">
@@ -515,8 +507,8 @@ export const SolicitarServicioPage = () => {
                     {/* Menus - Only show if user has tickets OR is editing existing order with a menu (not declined) */}
                     {!declinarBeneficio && (
                       hasActiveTickets || 
-                      (diaSeleccionado && isEditingDay(diaSeleccionado.id) && (() => {
-                        const existingOrder = getExistingOrderForDay(diaSeleccionado.id);
+                      (diaSeleccionado && isEditingDay(diaSeleccionado.id, diaSeleccionado.fecha) && (() => {
+                        const existingOrder = getExistingOrderForDay(diaSeleccionado.id, diaSeleccionado.fecha);
                         return existingOrder && parseInt(existingOrder.id_menu) !== 0;
                       })())
                     ) && (
@@ -669,10 +661,10 @@ export const SolicitarServicioPage = () => {
                     </div>
                     <div className="ml-3">
                       <h3 className="text-sm font-medium text-green-800">
-                        {diaSeleccionado && isEditingDay(diaSeleccionado.id) ? '¡Pedido Actualizado Exitosamente!' : '¡Pedido Realizado Exitosamente!'}
+                        {diaSeleccionado && isEditingDay(diaSeleccionado.id, diaSeleccionado.fecha) ? '¡Pedido Actualizado Exitosamente!' : '¡Pedido Realizado Exitosamente!'}
                       </h3>
                       <div className="mt-2 text-sm text-green-700">
-                        {diaSeleccionado && isEditingDay(diaSeleccionado.id) 
+                        {diaSeleccionado && isEditingDay(diaSeleccionado.id, diaSeleccionado.fecha) 
                           ? 'Tu pedido ha sido actualizado correctamente.' 
                           : 'Tu pedido ha sido registrado correctamente.'}
                       </div>
@@ -682,7 +674,7 @@ export const SolicitarServicioPage = () => {
               ) : (
                 <div className="text-center">
                   <p className="text-gray-600 mb-4">
-                    {diaSeleccionado && isEditingDay(diaSeleccionado.id) 
+                    {diaSeleccionado && isEditingDay(diaSeleccionado.id, diaSeleccionado.fecha) 
                       ? '¿Estás seguro de que quieres actualizar este pedido?' 
                       : '¿Estás seguro de que quieres realizar este pedido?'}
                   </p>
@@ -690,7 +682,7 @@ export const SolicitarServicioPage = () => {
               )}
             </div>
           )}
-          {hasActiveTickets && (
+          {hasActiveTickets && hasAvailableDays && (
             <>
             {/* Navigation Buttons */}
             <div className="mt-8 flex justify-between">
@@ -700,7 +692,7 @@ export const SolicitarServicioPage = () => {
                 {/* Previous Step Button - Disabled if step is 0 OR if order was already placed for this day */}
                 <Button
                   onClick={handlePreviousStep}
-                  disabled={currentStep === 0 || (diaSeleccionado ? completedDays.includes(diaSeleccionado.id) : false)}
+                  disabled={currentStep === 0 || (diaSeleccionado ? completedDays.includes(diaSeleccionado.fecha) : false)}
                   variant="outline"
                 >
                   Anterior
@@ -714,7 +706,7 @@ export const SolicitarServicioPage = () => {
                     disabled={loading}
                     className="bg-green-600 hover:bg-green-700"
                   >
-                    {loading ? 'Procesando...' : (diaSeleccionado && isEditingDay(diaSeleccionado.id) ? 'Confirmar Cambios' : 'Confirmar Pedido')}
+                    {loading ? 'Procesando...' : (diaSeleccionado && isEditingDay(diaSeleccionado.id, diaSeleccionado.fecha) ? 'Confirmar Cambios' : 'Confirmar Pedido')}
                   </Button>
                 ) : (
                   <Button
