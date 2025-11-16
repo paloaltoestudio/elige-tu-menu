@@ -421,7 +421,13 @@ export const SolicitarServicioPage = () => {
                     </div>
                     <div className="ml-3">
                       <p className="text-sm text-yellow-700 font-medium">
-                        Actualmente no posee ningún día para realizar pedidos
+                      Actualmente no posee ningún día para realizar pedidos.
+                        {user?.rol === 'USUARIO' 
+                          ? <> Comuníquese al correo <a href="mailto:aplicacioneligetumenu@udea.edu.co" className="underline text-blue-700 hover:text-blue-900">aplicacioneligetumenu@udea.edu.co</a></>
+                          : user?.rol === 'ESTUDIANTE'
+                          ? <> Comuníquese al correo <a href="mailto:servicioalimentacion@udea.edu.co" className="underline text-blue-700 hover:text-blue-900">servicioalimentacion@udea.edu.co</a></>
+                          : ''
+                        }
                       </p>
                     </div>
                   </div>
