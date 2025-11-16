@@ -74,9 +74,9 @@ export const useSolicitudesStore = create<SolicitudesState>((set, get) => ({
       if (filters.fechaHasta) {
         fechaFinal = filters.fechaHasta;
       } else {
-        // Default to 15 days ahead if no to date
+        // Default to 6 months ahead if no to date
         const endDate = new Date();
-        endDate.setDate(endDate.getDate() + 15);
+        endDate.setMonth(endDate.getMonth() + 6);
         fechaFinal = endDate.toISOString().split('T')[0];
       }
 

@@ -96,6 +96,7 @@ export class SolicitarServicioService {
       formData.append('restaurante_id', request.restaurante_id.toString());
       formData.append('tipo_servicio', request.tipo_servicio.toString());
       formData.append('dia_id', request.dia_id.toString());
+      formData.append('fecha_pedido', request.fecha_pedido);
 
       console.log('Fetching menus with request:', request);
 

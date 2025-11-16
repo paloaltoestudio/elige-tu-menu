@@ -243,12 +243,16 @@ export const useSolicitarServicioStore = create<SolicitarServicioStore>((set, ge
   fetchMenus: async (tk: string, numeroDocumento: string, restauranteId: number, tipoServicio: number, diaId: number) => {
     set({ loading: true, error: null });
     try {
+      const state = get();
+      const fechaPedido = state.diaSeleccionado?.fecha || '';
+
       const response = await SolicitarServicioService.getMenus({ 
         tk, 
         numero_documento: numeroDocumento,
         restaurante_id: restauranteId,
         tipo_servicio: tipoServicio,
-        dia_id: diaId
+        dia_id: diaId,
+        fecha_pedido: fechaPedido
       });
       set({ 
         menus: response.menus || [],

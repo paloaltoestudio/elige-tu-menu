@@ -81,6 +81,7 @@ export interface MenusRequest {
   restaurante_id: number;
   tipo_servicio: number;
   dia_id: number;
+  fecha_pedido: string;
 }
 
 export interface RealizarPedidoRequest {
