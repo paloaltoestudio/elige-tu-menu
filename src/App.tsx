@@ -11,6 +11,7 @@ import { CancelOrdersPage } from './pages/CancelOrdersPage';
 import { TutorialPage } from './pages/TutorialPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
+import { UserProfilePage } from './pages/UserProfilePage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 function App() {
@@ -97,6 +98,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <TutorialPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/perfil" 
+                element={
+                  <ProtectedRoute>
+                    <UserProfilePage />
                   </ProtectedRoute>
                 } 
               />

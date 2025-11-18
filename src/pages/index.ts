@@ -7,3 +7,4 @@ export { CancelOrdersPage } from './CancelOrdersPage';
 export { TutorialPage } from './TutorialPage';
 export { ForgotPasswordPage } from './ForgotPasswordPage';
 export { ResetPasswordPage } from './ResetPasswordPage';
+export { UserProfilePage } from './UserProfilePage';

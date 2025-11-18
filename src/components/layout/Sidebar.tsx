@@ -36,6 +36,11 @@ export const Sidebar = ({ className = '', isMobileMenuOpen, setIsMobileMenuOpen 
       active: location.pathname === '/cambiar-contrasena-auth',
     },
     {
+      label: 'Mi Perfil',
+      path: '/perfil',
+      active: location.pathname === '/perfil',
+    },
+    {
       label: 'Videos y tutoriales',
       path: '/tutoriales',
       active: location.pathname === '/tutoriales',
