@@ -222,7 +222,7 @@ export const UserProfilePage = () => {
     const celularValue = formData.celular.trim();
     
     // Ensure telefono and celular only contain numbers and meet length requirements
-    const sanitizedTelefono = telefonoValue && /^\d+$/.test(telefonoValue) && telefonoValue.length <= 7 
+    const sanitizedTelefono = telefonoValue && /^\d+$/.test(telefonoValue) && telefonoValue.length <= 10 
       ? telefonoValue 
       : undefined;
     

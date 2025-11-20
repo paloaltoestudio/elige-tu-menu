@@ -104,18 +104,14 @@ export const useSolicitudesStore = create<SolicitudesState>((set, get) => ({
         }
       }
       
-      // Only extract unique menus on initial load (when no filters are applied)
-      // This ensures all options remain available even after filtering
+      // Extract unique menus from current results and merge with existing menus
+      // This ensures the filter dropdown always shows all menus that appear in the results
       const currentState = get();
-      const isInitialLoad = currentState.availableMenus.length === 0 && 
-                            !filters.menu && 
-                            !filters.estado;
+      const menusFromCurrentResults = [...new Set(pedidosArray.map(p => p.menu))].filter(Boolean);
       
-      let uniqueMenus = currentState.availableMenus;
-      
-      if (isInitialLoad) {
-        uniqueMenus = [...new Set(pedidosArray.map(p => p.menu))].filter(Boolean).sort();
-      }
+      // Merge current results menus with existing availableMenus to build comprehensive list
+      // This way, even when filtering, we still have all menu options available
+      const uniqueMenus = [...new Set([...currentState.availableMenus, ...menusFromCurrentResults])].sort();
       
       set({
         solicitudes: pedidosArray,

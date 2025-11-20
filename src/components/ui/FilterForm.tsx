@@ -32,9 +32,12 @@ export const FilterForm = ({
   const estadoOptions = [
     { value: '', label: '-- Seleccione Estado del pedido --' },
     { value: 'SOLICITADO', label: 'SOLICITADO' },
+    { value: 'NO SOLICITADO', label: 'NO SOLICITADO' },
     { value: 'DESPACHADO', label: 'DESPACHADO' },
+    { value: 'DESPACHADO_SIN_PEDIDO', label: 'DESPACHADO SIN PEDIDO' },
     { value: 'CANCELADO', label: 'CANCELADO' },
     { value: 'EN NOVEDAD', label: 'EN NOVEDAD' },
+    { value: 'NOVEDAD', label: 'NOVEDAD' },
   ];
 
   return (
