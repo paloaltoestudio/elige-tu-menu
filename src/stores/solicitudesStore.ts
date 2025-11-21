@@ -104,14 +104,23 @@ export const useSolicitudesStore = create<SolicitudesState>((set, get) => ({
         }
       }
       
-      // Extract unique menus from current results and merge with existing menus
-      // This ensures the filter dropdown always shows all menus that appear in the results
-      const currentState = get();
-      const menusFromCurrentResults = [...new Set(pedidosArray.map(p => p.menu))].filter(Boolean);
+      // Extract menus from menus_filtro if available (contains all unique menus from all pages)
+      // Otherwise fall back to extracting from current page results
+      let uniqueMenus: string[] = [];
       
-      // Merge current results menus with existing availableMenus to build comprehensive list
-      // This way, even when filtering, we still have all menu options available
-      const uniqueMenus = [...new Set([...currentState.availableMenus, ...menusFromCurrentResults])].sort();
+      if (response.menus_filtro?.menus) {
+        // Parse comma-separated string from API and convert to sorted array
+        uniqueMenus = response.menus_filtro.menus
+          .split(',')
+          .map(menu => menu.trim())
+          .filter(Boolean)
+          .sort();
+      } else {
+        // Fallback: extract from current page results if menus_filtro is not available
+        const currentState = get();
+        const menusFromCurrentResults = [...new Set(pedidosArray.map(p => p.menu))].filter(Boolean);
+        uniqueMenus = [...new Set([...currentState.availableMenus, ...menusFromCurrentResults])].sort();
+      }
       
       set({
         solicitudes: pedidosArray,

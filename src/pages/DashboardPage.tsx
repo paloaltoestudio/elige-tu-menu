@@ -46,7 +46,7 @@ export const DashboardPage = () => {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Link to="/solicitar-servicio" className="block h-full">
               <div className="h-full bg-blue-50 border border-blue-200 rounded-lg p-6 hover:bg-blue-100 transition-colors cursor-pointer">
                 <h3 className="text-lg font-semibold text-blue-900 mb-2">
@@ -80,7 +80,7 @@ export const DashboardPage = () => {
               </div>
             </Link>
             
-            {/* <Link to="/cambiar-contrasena" className="block">
+            <Link to="/perfil" className="block h-full">
               <div className="bg-purple-50 border border-purple-200 rounded-lg p-6 hover:bg-purple-100 transition-colors cursor-pointer">
                 <h3 className="text-lg font-semibold text-purple-900 mb-2">
                   Perfil
@@ -89,7 +89,7 @@ export const DashboardPage = () => {
                   Gestiona tu información personal
                 </p>
               </div>
-            </Link> */}
+            </Link>
           </div>
         </div>
         </main>
