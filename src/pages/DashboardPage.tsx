@@ -81,7 +81,7 @@ export const DashboardPage = () => {
             </Link>
             
             <Link to="/perfil" className="block h-full">
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-6 hover:bg-purple-100 transition-colors cursor-pointer">
+              <div className="h-full bg-purple-50 border border-purple-200 rounded-lg p-6 hover:bg-purple-100 transition-colors cursor-pointer">
                 <h3 className="text-lg font-semibold text-purple-900 mb-2">
                   Perfil
                 </h3>
