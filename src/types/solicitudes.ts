@@ -18,6 +18,9 @@ export interface SolicitudesResponse {
     total_paginas: number;
     total_registros: number;
   };
+  menus_filtro?: {
+    menus: string;
+  };
 }
 
 export interface SolicitudesRequest {
