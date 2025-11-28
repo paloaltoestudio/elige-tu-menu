@@ -13,6 +13,7 @@ import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { UserProfilePage } from './pages/UserProfilePage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { StudentOnlyRoute } from './components/auth/StudentOnlyRoute';
 
 function App() {
   const { isAuthenticated, initializing, initializeAuth } = useAuthStore();
@@ -104,9 +105,9 @@ function App() {
               <Route 
                 path="/perfil" 
                 element={
-                  <ProtectedRoute>
+                  <StudentOnlyRoute>
                     <UserProfilePage />
-                  </ProtectedRoute>
+                  </StudentOnlyRoute>
                 } 
               />
           <Route 

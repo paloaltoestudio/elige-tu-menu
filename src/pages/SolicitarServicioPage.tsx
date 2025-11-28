@@ -507,7 +507,9 @@ export const SolicitarServicioPage = () => {
                           onChange={toggleDeclinarBeneficio}
                           className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded scale-125"
                         />
-                        <span className="text-gray-700 uppercase">Rechazar beneficio para este día</span>
+                        <span className="text-gray-700 uppercase">
+                          {user?.rol === 'ESTUDIANTE' ? 'Rechazar beneficio para este día' : 'Hoy no deseo el beneficio'}
+                        </span>
                       </label>
                     </div>
 

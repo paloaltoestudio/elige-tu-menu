@@ -3,9 +3,12 @@ import { Header } from '../components/layout/Header';
 import { Sidebar } from '../components/layout/Sidebar';
 import { Footer } from '../components/layout/Footer';
 import { Link } from 'react-router-dom';
+import { useAuthStore } from '../stores/authStore';
 
 export const DashboardPage = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user } = useAuthStore();
+  const isStudent = user?.rol === 'ESTUDIANTE';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -36,24 +39,24 @@ export const DashboardPage = () => {
                 <p className="text-sm text-blue-700">
                   Recuerda reportar las novedades al correo{' '}
                   <a 
-                    href="mailto:servicioalimentacion@udea.edu.co" 
+                    href={`mailto:${isStudent ? 'servicioalimentacion@udea.edu.co' : 'aplicacioneligetumenu@udea.edu.co'}`}
                     className="font-medium underline hover:text-blue-900"
                   >
-                    servicioalimentacion@udea.edu.co
+                    {isStudent ? 'servicioalimentacion@udea.edu.co' : 'aplicacioneligetumenu@udea.edu.co'}
                   </a>
                 </p>
               </div>
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className={user?.rol === "ESTUDIANTE" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"}>
             <Link to="/solicitar-servicio" className="block h-full">
               <div className="h-full bg-blue-50 border border-blue-200 rounded-lg p-6 hover:bg-blue-100 transition-colors cursor-pointer">
                 <h3 className="text-lg font-semibold text-blue-900 mb-2">
                   Solicitar Servicio
                 </h3>
                 <p className="text-blue-700 text-sm">
-                  Elige tu menú para la semana siguiente
+                  {user?.rol === "ESTUDIANTE" ? "Elige tu menú para la semana siguiente" : "Elige tu menú para el siguiente ciclo."}
                 </p>
               </div>
             </Link>
@@ -80,16 +83,18 @@ export const DashboardPage = () => {
               </div>
             </Link>
             
-            <Link to="/perfil" className="block h-full">
-              <div className="h-full bg-purple-50 border border-purple-200 rounded-lg p-6 hover:bg-purple-100 transition-colors cursor-pointer">
-                <h3 className="text-lg font-semibold text-purple-900 mb-2">
-                  Perfil
-                </h3>
-                <p className="text-purple-700 text-sm">
-                  Gestiona tu información personal
-                </p>
-              </div>
-            </Link>
+            {isStudent && (
+              <Link to="/perfil" className="block h-full">
+                <div className="h-full bg-purple-50 border border-purple-200 rounded-lg p-6 hover:bg-purple-100 transition-colors cursor-pointer">
+                  <h3 className="text-lg font-semibold text-purple-900 mb-2">
+                    Perfil
+                  </h3>
+                  <p className="text-purple-700 text-sm">
+                    Gestiona tu información personal
+                  </p>
+                </div>
+              </Link>
+            )}
           </div>
         </div>
         </main>

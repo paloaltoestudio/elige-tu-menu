@@ -1,4 +1,5 @@
 import { useLocation, Link } from 'react-router-dom';
+import { useAuthStore } from '../../stores/authStore';
 
 interface SidebarProps {
   className?: string;
@@ -8,6 +9,7 @@ interface SidebarProps {
 
 export const Sidebar = ({ className = '', isMobileMenuOpen, setIsMobileMenuOpen }: SidebarProps) => {
   const location = useLocation();
+  const { user } = useAuthStore();
 
   const navigationItems = [
     {
@@ -39,13 +41,20 @@ export const Sidebar = ({ className = '', isMobileMenuOpen, setIsMobileMenuOpen 
       label: 'Mi Perfil',
       path: '/perfil',
       active: location.pathname === '/perfil',
+      showOnlyForStudent: true, // Only show for students
     },
     {
       label: 'Videos y tutoriales',
       path: '/tutoriales',
       active: location.pathname === '/tutoriales',
     },
-  ];
+  ].filter((item) => {
+    // Hide profile menu item if user is not a student
+    if (item.showOnlyForStudent) {
+      return user?.rol === 'ESTUDIANTE';
+    }
+    return true;
+  });
 
   return (
     <>
